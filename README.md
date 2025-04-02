@@ -1,27 +1,93 @@
-# Dotfiles Bootstrap & Setup
+# Dotfiles Bootstrap & Setup Scripts
 
-This repo bootstraps and configures your dotfiles on any system.
+This folder contains platform-agnostic scripts to bootstrap and configure your personal dotfiles setup across:
+
+- **Linux** (bash/zsh/fish)
+- **Windows** (PowerShell / WSL)
+- **FreeBSD / TrueNAS** (csh/tcsh)
+
+> [!NOTE]
+> 
+> Your actual dotfiles are managed separately at [kjanat/dotfiles](https://github.com/kjanat/dotfiles).  
+These scripts clone and configure that repo as a bare Git repo in `~/.dotfiles`.
+
+---
 
 ## Usage
 
-Run this to bootstrap your dotfiles:
+### 1. Bootstrap your dotfiles
+
 ```bash
 ./bootstrap
 ```
 
-Run this to set up your shell alias and common tools:
+This script auto-detects your shell and runs the correct bootstrap for:
+
+- bash/zsh (bootstrap.sh)
+- PowerShell (bootstrap.ps1)
+- csh (bootstrap.csh)
+
+It will:
+
+- Clone your dotfiles from kjanat/dotfiles
+- Backup any conflicting files
+- Set up your home dir with your configs
+
+---
+
+2. Set up your shell and tooling
+
 ```bash
 ./setup
 ```
 
-### Shell Support:
-- bash/zsh/fish (Linux/macOS)
-- PowerShell (Windows/WSL)
-- csh/tcsh (BSD, TrueNAS jails)
+This script:
 
-Make scripts executable:
+- Adds the dotfiles Git alias to your shell config
+- Installs common tools (git, zsh, vim, etc.)
+- Optionally sets your shell to zsh
+
+---
+
+Directory structure
+
+```plaintext
+dotfiles/
+├── bootstrap*       → universal bootstrap dispatcher
+├── bootstrap.sh     → bash/zsh installer
+├── bootstrap.ps1    → PowerShell installer
+├── bootstrap.csh    → csh installer
+├── setup*           → universal setup dispatcher
+├── setup.sh         → bash/zsh tooling
+├── setup.ps1        → PowerShell tooling
+├── setup.csh        → csh tooling
+└── README.md        → this file
+```
+
+Make the scripts executable:
+
 ```bash
 chmod +x bootstrap bootstrap.sh setup setup.sh
 ```
 
-Enjoy your cross-platform dotfiles domination.
+---
+
+### Related
+
+[kjanat/dotfiles](kjanat/dotfiles) – your actual config repo
+
+---
+
+### [`kjanat/kjanat/dotfiles/.gitignore`](dotfiles/.gitignore)
+
+```gitignore
+# Backup and temp folders
+*.swp
+*~
+.DS_Store
+*.bak
+*.old
+
+# Dotfiles boot artifacts (not needed in repo)
+dotfiles-backup/
+```
