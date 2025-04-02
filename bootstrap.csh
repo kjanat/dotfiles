@@ -26,3 +26,18 @@ endif
 dotfiles config --local status.showUntrackedFiles no
 
 echo "Dotfiles successfully installed."
+
+# Post-bootstrap: link README and define dothelp alias
+set scriptdir = `dirname $0`
+ln -sf "$scriptdir/README.md" "$HOME/dotfiles-readme.md"
+
+set rcfile = "$HOME/.cshrc"
+set helpalias = "alias dothelp 'cat ~/dotfiles-readme.md'"
+
+# Append alias if it doesn’t exist yet
+if (`grep -c 'alias dothelp' $rcfile` == 0) then
+    echo $helpalias >> $rcfile
+    echo "Dothelp alias added to $rcfile"
+else
+    echo "Dothelp alias already exists in $rcfile"
+endif
