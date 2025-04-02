@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
+    exec bash ./setup.sh
+elif [ -n "$CSH_VERSION" ] || [ -n "$tcsh" ]; then
+    exec csh ./setup.csh
+elif command -v pwsh &> /dev/null; then
+    exec pwsh -NoProfile -ExecutionPolicy Bypass -File ./setup.ps1
+elif command -v powershell &> /dev/null; then
+    exec powershell -NoProfile -ExecutionPolicy Bypass -File ./setup.ps1
+else
+    echo "Unsupported shell. Please run the appropriate setup script manually."
+    exit 1
+fi
