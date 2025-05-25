@@ -23,7 +23,9 @@ skip_global_compinit=1
 
 # Optimize completion loading
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+# Simple completion check - rebuild daily or if missing
+zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+if [[ ! -f "$zcompdump" ]] || [[ $(find "$zcompdump" -mtime +1 2>/dev/null | wc -l) -gt 0 ]]; then
     compinit
 else
     compinit -C
@@ -63,21 +65,21 @@ export GREP_OPTIONS='--color=auto'
 alias h='history 25'
 alias j='jobs -l'
 alias c='clear' 
-alias la='ls -aF --color=auto'
-alias lf='ls -FA --color=auto'
-alias ll='ls -lAF --color=auto'
+alias la='ls -aF'
+alias lf='ls -FA'
+alias ll='ls -lAF'
 alias freenas_dir='cd /mnt/PoolONE/FreeNAS'
 
-# Enhanced ls aliases with icons and colors
-alias l='ls -CF --color=auto'
-alias lr='ls -R --color=auto'                    # recursive
-alias lt='ls -ltrh --color=auto'                 # sort by date
-alias lk='ls -lSrh --color=auto'                 # sort by size
-alias lx='ls -lXBh --color=auto'                 # sort by extension
-alias lc='ls -ltcrh --color=auto'                # sort by change time
-alias lu='ls -lturh --color=auto'                # sort by access time
-alias lm='ls -al --color=auto | more'            # pipe through more
-alias tree='tree -C'                             # colorized tree
+# Enhanced ls aliases with colors (FreeBSD compatible)
+alias l='ls -CF'
+alias lr='ls -R'                         # recursive
+alias lt='ls -ltrh'                      # sort by date
+alias lk='ls -lSrh'                      # sort by size
+alias lx='ls -lXBh'                      # sort by extension (if supported)
+alias lc='ls -ltcrh'                     # sort by change time
+alias lu='ls -lturh'                     # sort by access time
+alias lm='ls -al | more'                 # pipe through more
+alias tree='tree -C 2>/dev/null || find . -type d | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/"'
 
 # Navigation power aliases
 alias ..='cd ..'
@@ -89,20 +91,20 @@ alias -- -='cd -'
 alias ~='cd ~'
 alias back='cd $OLDPWD'
 
-# File operations with confirmations and colors
-alias rm='rm -i --preserve-root'
+# File operations with confirmations (FreeBSD compatible)
+alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias ln='ln -i'
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+alias chown='chown'
+alias chmod='chmod'
+alias chgrp='chgrp'
 
 # System monitoring aliases
 alias df='df -h'
 alias du='du -h'
-alias free='free -h'
-alias ps='ps auxf'
+alias free='freebsd_meminfo'
+alias ps='ps aux'
 alias psg='ps aux | grep -v grep | grep -i -e VSZ -e'
 alias top='htop 2>/dev/null || top'
 alias iotop='iotop 2>/dev/null || iostat'
@@ -114,7 +116,7 @@ alias myipv4="curl -s ipv4.icanhazip.com"
 alias myipv6="curl -s ipv6.icanhazip.com"
 alias localip="ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'"
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python'
-alias ports='netstat -tulanp'
+alias netports='netstat -tulanp'
 alias listening='netstat -tlnp | grep LISTEN'
 alias tcpdump='tcpdump -nn'
 
@@ -167,8 +169,8 @@ alias now='date +"%T"'
 alias nowtime=now
 alias nowdate='date +"%d-%m-%Y"'
 
-# Safety aliases for destructive commands
-alias rm='rm -i --preserve-root'
+# Safety aliases for destructive commands (FreeBSD compatible)
+alias rm='rm -i'
 alias del='rm -i'
 alias mv='mv -i'
 alias cp='cp -i'
@@ -215,8 +217,9 @@ get_load() {
 
 # ZFS pool health indicator
 get_zfs_status() {
-    local status=$(zpool status 2>/dev/null | grep -i "errors\|degraded\|offline" | wc -l)
-    if [[ $status -gt 0 ]]; then
+    local zfs_status_count
+    zfs_status_count=$(zpool status 2>/dev/null | grep -i "errors\|degraded\|offline" | wc -l)
+    if [[ $zfs_status_count -gt 0 ]]; then
         echo "%F{red}⚠ ZFS%f"
     else
         echo "%F{green}✓ ZFS%f"
@@ -225,6 +228,7 @@ get_zfs_status() {
 
 # Battery status (if applicable)
 get_battery() {
+    # Check for Linux battery info
     if [[ -f /sys/class/power_supply/BAT0/capacity ]]; then
         local battery=$(cat /sys/class/power_supply/BAT0/capacity)
         if [[ $battery -lt 20 ]]; then
@@ -233,6 +237,18 @@ get_battery() {
             echo "%F{yellow}🔋 ${battery}%%%f"
         else
             echo "%F{green}🔋 ${battery}%%%f"
+        fi
+    # Check for FreeBSD battery info (ACPI)
+    elif command -v acpiconf >/dev/null 2>&1; then
+        local battery=$(acpiconf -i 0 2>/dev/null | awk '/Remaining capacity:/ {gsub(/%/, "", $3); print $3}')
+        if [[ -n "$battery" ]]; then
+            if [[ $battery -lt 20 ]]; then
+                echo "%F{red}🔋 ${battery}%%%f"
+            elif [[ $battery -lt 50 ]]; then
+                echo "%F{yellow}🔋 ${battery}%%%f"
+            else
+                echo "%F{green}🔋 ${battery}%%%f"
+            fi
         fi
     fi
 }
@@ -465,6 +481,33 @@ unsetopt HIST_BEEP
 unsetopt LIST_BEEP
 
 # ============================================================================
+# FREEBSD COMPATIBILITY FUNCTIONS
+# ============================================================================
+
+# FreeBSD-compatible memory info function
+freebsd_meminfo() {
+    local total_bytes=$(sysctl -n hw.physmem)
+    local page_size=$(sysctl -n vm.stats.vm.v_page_size)
+    local free_pages=$(sysctl -n vm.stats.vm.v_free_count)
+    local inactive_pages=$(sysctl -n vm.stats.vm.v_inactive_count)
+    local cache_pages=$(sysctl -n vm.stats.vm.v_cache_count 2>/dev/null || echo 0)
+    
+    # Use awk for calculations to avoid dependency on bc
+    local total_gb=$(echo $total_bytes | awk '{printf "%.1f", $1/1024/1024/1024}')
+    local free_bytes=$(echo "$free_pages $page_size" | awk '{print $1*$2}')
+    local free_gb=$(echo $free_bytes | awk '{printf "%.1f", $1/1024/1024/1024}')
+    local inactive_bytes=$(echo "$inactive_pages $page_size" | awk '{print $1*$2}')
+    local inactive_gb=$(echo $inactive_bytes | awk '{printf "%.1f", $1/1024/1024/1024}')
+    local cache_bytes=$(echo "$cache_pages $page_size" | awk '{print $1*$2}')
+    local cache_gb=$(echo $cache_bytes | awk '{printf "%.1f", $1/1024/1024/1024}')
+    local available_gb=$(echo "$free_gb $inactive_gb $cache_gb" | awk '{printf "%.1f", $1+$2+$3}')
+    local used_gb=$(echo "$total_gb $available_gb" | awk '{printf "%.1f", $1-$2}')
+    
+    printf "%-15s %8s %8s %8s %8s\n" "" "total" "used" "free" "available"
+    printf "%-15s %7.1fG %7.1fG %7.1fG %7.1fG\n" "Mem:" "$total_gb" "$used_gb" "$free_gb" "$available_gb"
+}
+
+# ============================================================================
 # MEGA FUNCTION LIBRARY
 # ============================================================================
 
@@ -545,7 +588,7 @@ nettest() {
         echo "❌ Internet: Failed"
     fi
     
-    local gateway=$(ip route | grep default | awk '{print $3}' | head -1)
+    local gateway=$(route -n get default 2>/dev/null | awk '/gateway:/ {print $2}' || netstat -rn | awk '/^default/ {print $2}' | head -1)
     if [[ -n $gateway ]]; then
         if ping -c 3 $gateway >/dev/null 2>&1; then
             echo "✅ Gateway ($gateway): OK"
@@ -560,10 +603,13 @@ nettest() {
 
 # Enhanced ports function
 ports() {
-    echo "🔌 Listening ports:"
-    netstat -tulanp | grep LISTEN | sort -k4
+    echo "🔌 Open (non-local) ports:"
+    netstat -tuln | grep LISTEN | grep -v '127.0.0.1\|::1' \
+      | awk '{print $1, $4}' \
+      | column -t \
+      | sed -E "s/(:[0-9]+)/$(printf '\033[1;31m')\1$(printf '\033[0m')/g"
     echo "🌐 Established connections:"
-    netstat -tulanp | grep ESTABLISHED | wc -l | xargs echo "Active connections:"
+    netstat -tun | grep ESTABLISHED | wc -l | xargs echo "Active connections:"
 }
 
 # Ultimate ZFS health check
@@ -588,41 +634,47 @@ sysinfo() {
     echo "📍 Hostname: $(hostname)"
     echo "⏰ Uptime: $(uptime | awk -F, '{sub(".*up ",x,$1);print $1}' | sed 's/^ *//')"
     echo "📈 Load: $(uptime | awk -F'load average:' '{print $2}')"
-    echo "💾 Memory: $(free -h | awk '/^Mem:/ {print $3 "/" $2 " (" int($3/$2 * 100) "%)"}')"
+    echo "💾 Memory: $(sysctl -n hw.physmem | awk '{printf "%.1f GB total", $1/1024/1024/1024}') | $(sysctl -n vm.stats.vm.v_free_count vm.stats.vm.v_page_size | awk 'NR==1{free=$1} NR==2{pagesize=$1} END{printf "%.1f GB free", (free*pagesize)/1024/1024/1024}')"
     echo "💿 Root Disk: $(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')"
     echo "🌡️  CPU Temp: $(sysctl -n hw.acpi.thermal.tz0.temperature 2>/dev/null | sed 's/C/°C/' || echo "N/A")"
     echo "🔧 TrueNAS: $(freenas-version 2>/dev/null || echo "Unknown")"
     echo "🐧 Kernel: $(uname -r)"
     echo "🏃 Processes: $(ps aux | wc -l)"
     echo "👥 Users: $(who | wc -l)"
-    echo "🌐 IP: $(hostname -I | awk '{print $1}')"
+    echo "🌐 IP: $(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}')"
 }
 
 # Process management
 topcpu() {
     echo "🔥 Top ${1:-10} CPU processes:"
-    ps aux --sort=-%cpu | head -$((${1:-10}+1))
+    ps aux | sort -k3 -nr | head -$((${1:-10}+1))
 }
 
 topmem() {
     echo "💾 Top ${1:-10} Memory processes:"
-    ps aux --sort=-%mem | head -$((${1:-10}+1))
+    ps aux | sort -k4 -nr | head -$((${1:-10}+1))
 }
 
 # Service management helper
 servstat() {
     if [[ -n $1 ]]; then
-        service $1 status
+        service $1 status 2>/dev/null || service $1 onestatus 2>/dev/null || echo "Service $1 not found"
     else
         echo "📋 Service Status Overview:"
-        service -e | while read svc; do
-            status=$(service $svc onestatus 2>/dev/null | grep -o "is running\|is not running" || echo "unknown")
-            if [[ $status == *"running"* ]]; then
-                echo "✅ $svc: Running"
-            else
-                echo "❌ $svc: Stopped"
-            fi
-        done
+        if command -v service >/dev/null 2>&1; then
+            service -e 2>/dev/null | while read svc; do
+                if [[ -n "$svc" ]]; then
+                    status=$(service $svc onestatus 2>/dev/null | grep -o "is running\|is not running" || echo "unknown")
+                    if [[ $status == *"running"* ]]; then
+                        echo "✅ $svc: Running"
+                    else
+                        echo "❌ $svc: Stopped"
+                    fi
+                fi
+            done
+        else
+            echo "Service management not available"
+        fi
     fi
 }
 
@@ -661,9 +713,9 @@ diskusage() {
 netinfo() {
     echo "🌐 Network Information:"
     echo "=== Interfaces ==="
-    ip addr show | grep -E '^[0-9]+:|inet '
+    ifconfig | grep -E "(inet |UP,|flags=)"
     echo "=== Routing Table ==="
-    ip route
+    netstat -rn
     echo "=== DNS Servers ==="
     cat /etc/resolv.conf | grep nameserver
     echo "=== Open Connections ==="
@@ -689,11 +741,13 @@ perfmon() {
     echo "=== CPU Usage ==="
     top -bn1 | grep "Cpu(s)" || iostat -c 1 1 | tail -1
     echo "=== Memory Usage ==="
-    free -h
+    echo "Total: $(sysctl -n hw.physmem | awk '{printf "%.1f GB", $1/1024/1024/1024}')"
+    echo "Free: $(sysctl -n vm.stats.vm.v_free_count vm.stats.vm.v_page_size | awk 'NR==1{free=$1} NR==2{pagesize=$1} END{printf "%.1f GB", (free*pagesize)/1024/1024/1024}')"
     echo "=== Disk I/O ==="
     iostat -d 1 1 2>/dev/null | tail -n +4 || echo "iostat not available"
     echo "=== Network I/O ==="
-    cat /proc/net/dev | grep -v "lo:" | awk 'NR>2{print $1, $2, $10}' | head -5 2>/dev/null || ifconfig | grep "RX bytes"
+    # FreeBSD doesn't have /proc/net/dev, use netstat instead
+    netstat -ibn 2>/dev/null | grep -v "lo0" | awk 'NR>1 && $1!~/Name/ {print $1 ": " $7 " bytes in, " $10 " bytes out"}' | head -5 || ifconfig | grep -E "(RX|TX) bytes"
     echo "=== Load Average ==="
     uptime
 }
@@ -745,7 +799,7 @@ serve() {
     local port=${1:-8000}
     echo "🌐 Starting HTTP server on port $port"
     echo "📁 Serving: $(pwd)"
-    echo "🔗 URL: http://$(hostname -I | awk '{print $1}'):$port"
+    echo "🔗 URL: http://$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}'):$port"
     python3 -m http.server $port 2>/dev/null || python -m SimpleHTTPServer $port
 }
 
@@ -759,7 +813,9 @@ cleanup() {
     echo "=== Package cache cleanup ==="
     sudo pkg clean -y 2>/dev/null && echo "✅ Package cache cleaned"
     echo "=== ZFS snapshot cleanup (older than 30 days) ==="
-    zfs list -t snapshot -o name,creation | awk '$2 < "'$(date -d '30 days ago' '+%Y-%m-%d')'" {print $1}' | head -5
+    # FreeBSD-compatible date calculation (30 days ago)
+    cutoff_date=$(date -v-30d '+%Y-%m-%d' 2>/dev/null || date -d '30 days ago' '+%Y-%m-%d' 2>/dev/null || echo "1970-01-01")
+    zfs list -t snapshot -o name,creation | awk '$2 < "'$cutoff_date'" {print $1}' | head -5
 }
 
 # Weather function
@@ -821,13 +877,34 @@ genpass() {
 # System update helper
 sysupdate() {
     echo "🔄 System Update Helper:"
-    echo "=== Updating package index ==="
-    sudo pkg update
-    echo "=== Available updates ==="
-    pkg version -v | grep '<'
-    echo "=== Update commands ==="
-    echo "  sudo pkg upgrade    - Upgrade all packages"
-    echo "  sudo freenas-update - Update TrueNAS (if available)"
+
+    # Detect if on TrueNAS Core (freenas-update present, pkg repo likely broken)
+    if command -v freenas-update >/dev/null 2>&1; then
+        echo "=== TrueNAS Core detected ==="
+        echo "The package manager (pkg) is not supported on the host system."
+        echo "Use the TrueNAS web interface for major updates and patches."
+        echo ""
+        echo "For CLI/system update:"
+        echo "  sudo freenas-update check         # Check for updates"
+        echo "  sudo freenas-update download      # Download updates"
+        echo "  sudo freenas-update install       # Install updates (will reboot)"
+        echo ""
+        echo "=== Jail/Plugin updates ==="
+        echo "For jails/plugins, use 'pkg' **inside** each jail, not on the host!"
+    else
+        echo "=== FreeBSD system detected ==="
+        echo "=== Updating package index ==="
+        if sudo pkg update 2>/dev/null; then
+            echo "✅ Package index updated"
+            echo "=== Available updates ==="
+            pkg version -v 2>/dev/null | grep '<' || echo "No updates available or pkg repository not configured"
+        else
+            echo "⚠️  Package repository not available or configured"
+            echo "This may be expected on TrueNAS systems where pkg is managed separately"
+        fi
+        echo "=== Update commands ==="
+        echo "  sudo pkg upgrade    - Upgrade all packages"
+    fi
 }
 
 # ============================================================================
@@ -951,22 +1028,22 @@ if [[ $- == *i* ]] && [[ -z $ZSH_BANNER_SHOWN ]]; then
     
     # Cool banner
     echo "
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  🚀 WELCOME TO ULTIMATE TRUENAS ZSH - BEAST MODE ACTIVATED! 🚀              ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║  📊 Quick Commands: sysinfo | zhealth | nettest | perfmon | servstat         ║
-║  🔧 ZFS Tools: pools | datasets | snapshots | scrub | zfsmaint              ║
-║  🌐 Network: myip | ports | netinfo | speedtest                            ║
-║  📁 Files: ff [name] | ftext [content] | extract [file] | backup [file]     ║
-║  🎯 Utils: weather | calc | genpass | cleanup | temps                       ║
-╚══════════════════════════════════════════════════════════════════════════════╝"
+╔══════════════════════════════════════════════════════════════════════════╗
+║  🚀 WELCOME TO ULTIMATE TRUENAS ZSH - BEAST MODE ACTIVATED! 🚀           ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║  📊 Quick Commands: sysinfo | zhealth | nettest | perfmon | servstat     ║
+║  🔧 ZFS Tools: pools | datasets | snapshots | scrub | zfsmaint           ║
+║  🌐 Network: myip | ports | netinfo | speedtest                          ║
+║  📁 Files: ff [name] | ftext [content] | extract [file] | backup [file]  ║
+║  🎯 Utils: weather | calc | genpass | cleanup | temps                    ║
+╚══════════════════════════════════════════════════════════════════════════╝"
     
     # Quick system status
-    echo "📍 $(hostname) | 💾 $(free -h | awk '/^Mem:/ {print $3 "/" $2}') | ⏰ $(uptime | awk -F, '{sub(".*up ",x,$1);print $1}' | sed 's/^ *//')"
+    echo "📍 $(hostname) | 💾 $(sysctl -n hw.physmem | awk '{printf "%.1f GB", $1/1024/1024/1024}') | ⏰ $(uptime | awk -F, '{sub(".*up ",x,$1);print $1}' | sed 's/^ *//')"
     
     # ZFS quick status
     if zpool list >/dev/null 2>&1; then
-        local zfs_status=$(zpool status 2>/dev/null | grep -c "errors\|DEGRADED\|OFFLINE" || echo "0")
+        zfs_status=$(zpool status 2>/dev/null | grep -c "errors\|DEGRADED\|OFFLINE" || echo "0")
         if [[ $zfs_status -eq 0 ]]; then
             echo "✅ ZFS: All pools healthy"
         else
@@ -974,8 +1051,10 @@ if [[ $- == *i* ]] && [[ -z $ZSH_BANNER_SHOWN ]]; then
         fi
     fi
     
-    # Check for updates (non-blocking)
-    (pkg version -v | grep -q '<' 2>/dev/null && echo "📦 Updates available: run 'sysupdate'") &
+    # Check for updates (non-blocking) - only if not TrueNAS Core
+    if ! command -v freenas-update >/dev/null 2>&1; then
+        (pkg version -v 2>/dev/null | grep -q '<' 2>/dev/null && echo "📦 Updates available: run 'sysupdate'") &
+    fi
     
     export MAIL=/var/mail/$USER
 fi
@@ -1084,10 +1163,10 @@ help() {
   sysupdate  - Update helper
 
 📁 FILE OPERATIONS:
-  ff [name]     - Find files by name
-  ftext [text]  - Find files by content
-  extract [file] - Extract any archive
-  backup [file]  - Quick backup
+  ff [name]       - Find files by name
+  ftext [text]    - Find files by content
+  extract [file]  - Extract any archive
+  backup [file]   - Quick backup
   findfile [name] - Find with preview
 
 🎯 UTILITIES:
