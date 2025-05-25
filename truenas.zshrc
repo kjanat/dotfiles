@@ -32,8 +32,85 @@ else
 fi
 
 # ============================================================================
+# TERMINAL PASTE MODE FIXES
+# ============================================================================
+
+# Fix bracketed paste mode issues (prevents ~, 201~ etc. when pasting)
+# This comprehensive fix addresses terminal paste mode issues that can cause
+# unwanted characters like ~ or 201~ to appear when pasting via right-click
+
+# 1. Disable ZSH bracketed paste variables
+unset zle_bracketed_paste 2>/dev/null
+unset BRACKETED_PASTE 2>/dev/null
+
+# 2. Disable terminal bracketed paste mode entirely
+printf '\e[?2004l' 2>/dev/null
+
+# 3. Set ZSH options to handle paste properly
+setopt NO_BEEP                    # Disable beep on paste errors
+setopt IGNORE_EOF                 # Don't exit on Ctrl+D during paste
+setopt INTERACTIVE_COMMENTS       # Allow comments in interactive shell
+
+# 4. Configure ZSH line editor to handle paste better
+if [[ -n "$ZLE_VERSION" ]]; then
+    # Disable bracketed paste in ZLE
+    zstyle ':bracketed-paste-magic' active-widgets '.false.'
+    # Handle paste as regular input
+    zstyle ':completion:*' menu select=0
+fi
+
+# 5. Additional terminal compatibility settings
+stty -ixon 2>/dev/null           # Disable XON/XOFF flow control
+# DO NOT DISABLE CTRL+Z (susp) or CTRL+C (intr) for proper keyboard functionality
+
+# 6. Function to force disable bracketed paste
+disable_bracketed_paste() {
+    printf '\e[?2004l' 2>/dev/null
+    # Restore default terminal control behavior
+    stty intr '^C' 2>/dev/null   # Restore Ctrl+C functionality
+    stty susp '^Z' 2>/dev/null   # Restore Ctrl+Z functionality
+    stty eof '^D' 2>/dev/null    # Restore Ctrl+D functionality
+}
+
+# 7. Ensure paste mode stays disabled but preserve keyboard functionality
+trap disable_bracketed_paste EXIT
+# Don't trap INT (Ctrl+C) or it will break keyboard functionality
+trap disable_bracketed_paste TERM
+
+# 8. Re-disable on prompt display (for persistent terminals)
+precmd_disable_paste() {
+    printf '\e[?2004l' 2>/dev/null
+    # Make sure terminal keyboard controls are properly restored
+    stty intr '^C' 2>/dev/null   # Ensure Ctrl+C works
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd precmd_disable_paste
+
+# ============================================================================
+
+# ============================================================================
 # ENVIRONMENT & SYSTEM SETUP
 # ============================================================================
+
+# Terminal initialization function - Ensures keyboard shortcuts work properly
+init_terminal() {
+    # Reset terminal control settings
+    stty sane 2>/dev/null
+    
+    # Ensure critical keyboard shortcuts work
+    stty intr '^C' 2>/dev/null      # Ctrl+C for interrupt
+    stty susp '^Z' 2>/dev/null      # Ctrl+Z for suspend
+    stty eof '^D' 2>/dev/null       # Ctrl+D for EOF
+    
+    # Disable bracketed paste mode
+    printf '\e[?2004l' 2>/dev/null
+    
+    # Ensure proper text display
+    printf '\e[0m' 2>/dev/null      # Reset text attributes
+}
+
+# Run terminal initialization
+init_terminal
 
 # Core environment
 umask 022
@@ -56,6 +133,31 @@ export LESSHISTFILE=-
 # Grep colors
 export GREP_COLOR='1;32'
 export GREP_OPTIONS='--color=auto'
+
+# Terminal initialization function - Ensures keyboard shortcuts work properly
+init_terminal() {
+    # Reset terminal control settings
+    stty sane 2>/dev/null
+    
+    # Ensure critical keyboard shortcuts work
+    stty intr '^C' 2>/dev/null      # Ctrl+C for interrupt
+    stty susp '^Z' 2>/dev/null      # Ctrl+Z for suspend
+    stty eof '^D' 2>/dev/null       # Ctrl+D for EOF
+    stty start '^Q' 2>/dev/null     # Ctrl+Q for XON
+    stty stop '^S' 2>/dev/null      # Ctrl+S for XOFF
+    
+    # Disable bracketed paste mode
+    printf '\e[?2004l' 2>/dev/null
+    
+    # Ensure proper text display
+    printf '\e[0m' 2>/dev/null      # Reset text attributes
+    
+    # Set UTF-8 support (if terminal supports it)
+    printf '\e%G' 2>/dev/null
+}
+
+# Run terminal initialization
+init_terminal
 
 # ============================================================================
 # ALIASES - THE ULTIMATE COLLECTION
@@ -275,8 +377,8 @@ precmd() {
 }
 
 # Ultimate multi-line prompt
-PROMPT='%F{cyan}╭─[%f%F{green}%n@%m%f%F{cyan}]─[%f%F{blue}%~%f%F{cyan}]${vcs_info_msg_0_}─[%f${_load_info}%F{cyan}]─[%f${_zfs_info}%F{cyan}]─[%f${_net_info}%F{cyan}]${_battery_info:+─[}${_battery_info}${_battery_info:+%F{cyan}]}
-╰─%f%(?.%F{green}➤%f.%F{red}➤%f) '
+PROMPT='%F{cyan}╭─[%f%F{green}%n@%m%f%F{cyan}]─[%f%F{blue}%~%f%F{cyan}]${vcs_info_msg_0_}─[%f${_load_info}%F{cyan}]─[%f${_zfs_info}%F{cyan}]─[%f${_net_info}%F{cyan}]${_battery_info:+─[}${_battery_info}${_battery_info:+%F{cyan}]}%f
+%F{cyan}╰─%f%(?.%F{green}➤%f.%F{red}➤%f) '
 
 # Right prompt with time, exit code, and job count
 RPROMPT='%(1j.%F{magenta}⚙ %j%f .)%(?..%F{red}✗ %?%f )%F{cyan}⌚ %D{%H:%M:%S}%f'
@@ -899,7 +1001,7 @@ sysupdate() {
             echo "=== Available updates ==="
             pkg version -v 2>/dev/null | grep '<' || echo "No updates available or pkg repository not configured"
         else
-            echo "⚠️  Package repository not available or configured"
+            echo "⚠️ Package repository not available or configured"
             echo "This may be expected on TrueNAS systems where pkg is managed separately"
         fi
         echo "=== Update commands ==="
@@ -1135,32 +1237,32 @@ help() {
 🎯 ULTIMATE TRUENAS ZSH COMMAND REFERENCE:
 
 📊 SYSTEM MONITORING:
-  sysinfo    - Complete system dashboard
-  perfmon    - Performance monitor
-  temps      - Temperature sensors
-  benchmark  - Quick system benchmark
+  sysinfo         - Complete system dashboard
+  perfmon         - Performance monitor
+  temps           - Temperature sensors
+  benchmark       - Quick system benchmark
 
 🏊 ZFS MANAGEMENT:
-  zhealth    - Complete ZFS health check
-  zfsmaint   - ZFS maintenance helper
-  pools      - List ZFS pools with health
-  datasets   - List ZFS datasets
-  snapshots  - List ZFS snapshots
-  scrub      - Start pool scrub
+  zhealth         - Complete ZFS health check
+  zfsmaint        - ZFS maintenance helper
+  pools           - List ZFS pools with health
+  datasets        - List ZFS datasets
+  snapshots       - List ZFS snapshots
+  scrub           - Start pool scrub
 
 🌐 NETWORK TOOLS:
-  nettest    - Network connectivity test
-  netinfo    - Complete network info
-  myip       - Show external IP
-  ports      - Show listening ports
-  speedtest  - Internet speed test
+  nettest         - Network connectivity test
+  netinfo         - Complete network info
+  myip            - Show external IP
+  ports           - Show listening ports
+  speedtest       - Internet speed test
 
 🔧 SYSTEM ADMINISTRATION:
-  servstat   - Service status overview
-  jailmgr    - Jail/container manager
-  seccheck   - Security check
-  cleanup    - System cleanup
-  sysupdate  - Update helper
+  servstat        - Service status overview
+  jailmgr         - Jail/container manager
+  seccheck        - Security check
+  cleanup         - System cleanup
+  sysupdate       - Update helper
 
 📁 FILE OPERATIONS:
   ff [name]       - Find files by name
@@ -1170,20 +1272,21 @@ help() {
   findfile [name] - Find with preview
 
 🎯 UTILITIES:
-  weather [city] - Weather info
-  calc [expr]    - Calculator
-  genpass [len]  - Password generator
-  serve [port]   - HTTP file server
-  colortest      - Terminal color test
+  weather [city]  - Weather info
+  calc [expr]     - Calculator
+  genpass [len]   - Password generator
+  serve [port]    - HTTP file server
+  colortest       - Terminal color test
 
 📍 QUICK NAVIGATION:
-  ~freenas   - /mnt/PoolONE/FreeNAS
-  ~pools     - /mnt
-  ~logs      - /var/log
-  ~etc       - /etc
+  ~freenas        - /mnt/PoolONE/FreeNAS
+  ~pools          - /mnt
+  ~logs           - /var/log
+  ~etc            - /etc
   
 ✨ Press TAB for auto-completion on everything!
 🎨 Commands are color-coded as you type!
-🔍 Use Ctrl+R for history search!
-"
+🔍 Use Ctrl+R for history search!"
+
+# End of configuration
 }
