@@ -1,183 +1,214 @@
-# Dotfiles Bootstrap & Setup Scripts
+# Dotfiles
 
-This folder contains cross-platform scripts to bootstrap and configure your personal dotfiles setup across:
+Personal dotfiles configuration for cross-platform development environments.
 
--   **Linux** (bash/zsh/fish)
--   **Windows** (PowerShell / WSL)
--   **FreeBSD / TrueNAS** (csh/tcsh)
+## Quick Install
 
-> [!IMPORTANT]
-> This repository contains **bootstrap and setup scripts only**. Your actual dotfiles (config files) should be managed in a separate repository at [kjanat/dotfiles](https://github.com/kjanat/dotfiles).  
-> These scripts clone and configure that repo as a bare Git repo in `~/.dotfiles`.
+To install these dotfiles, use the bootstrap scripts from the [dotfiles-bootstrap](https://github.com/kjanat/dotfiles-bootstrap) repository:
 
-> [!WARNING]  
-> Do not put your actual dotfiles (.zshrc, .vimrc, etc.) in this repository. They belong in your separate dotfiles repository.
-
-## Overview
-
-This dotfiles management system uses the "bare repository" approach, which allows you to:
-
--   Track dotfiles directly in your home directory
--   Avoid symlinks and complex management scripts
--   Maintain a clean separation between the dotfiles repo and working files
--   Easily sync across multiple machines
-
----
-
-## Usage
-
-### 1. Bootstrap your dotfiles
-
+### Linux/macOS
 ```bash
-./bootstrap
+curl -fsSL https://raw.githubusercontent.com/kjanat/dotfiles-bootstrap/master/bootstrap.sh | bash
 ```
 
-This script auto-detects your shell and runs the correct bootstrap for:
-
--   bash/zsh (bootstrap.sh)
--   PowerShell (bootstrap.ps1)
--   csh (bootstrap.csh)
-
-It will:
-
--   Clone your dotfiles from [kjanat/dotfiles](https://github.com/kjanat/dotfiles)
--   Backup any conflicting files
--   Set up your home dir with your configs
-
-### 2. Set up your shell and tooling
-
-```bash
-./setup
+### Windows (PowerShell)
+```powershell
+iex (iwr https://raw.githubusercontent.com/kjanat/dotfiles-bootstrap/master/bootstrap.ps1).Content
 ```
 
-This script:
+## What's Included
 
--   Adds the dotfiles Git alias to your shell config
--   Installs common tools (git, vim, etc.)
--   Configures optional components (e.g., Oh My Posh on Windows)
+### Shell Configurations
+- **`.bashrc`** - Comprehensive Bash configuration with cross-platform support
+- **`.zshrc`** - Main ZSH configuration with modular system support
+- **`truenas.zshrc`** - TrueNAS/FreeBSD-specific ZSH configuration
+- **`zsh-modular/`** - Modular ZSH system for organized configuration
 
----
+### Terminal Multiplexer
+- **`.tmux.conf`** - Advanced Tmux configuration with plugins and custom layouts
 
-## Features by Platform
+### Utilities
+- **`servstat.sh`** - Server status monitoring script
+- **`themes/`** - Oh My Posh and shell themes
 
-### PowerShell (Windows)
+### Documentation
+- **`ZSH-README.md`** - Detailed ZSH configuration documentation
+- **`README-MIGRATION.md`** - Migration notes and instructions
 
--   Git/Vim installation using winget or chocolatey
--   PowerShell Core installation
--   Oh My Posh theme integration
--   PowerShell profile configuration
+## Features
 
-### Bash/Zsh (Linux)
+### Cross-Platform Support
+- **Linux** - Full feature support
+- **macOS** - Native macOS integration
+- **Windows** - WSL and native PowerShell support
+- **FreeBSD/TrueNAS** - Specialized configuration for FreeBSD systems
 
--   Core development tools installation
--   Shell configuration
--   Optional Zsh setup with framework support
+### Shell Features (.bashrc/.zshrc)
+- Smart OS detection and platform-specific configurations
+- 50+ useful aliases for common commands
+- Git integration with status and branch information
+- Directory navigation shortcuts
+- Development environment setup
+- Server administration utilities
 
-### CSH/TCSH (FreeBSD)
+### Tmux Configuration
+- Plugin manager (TPM) support
+- Vim-style navigation
+- Cross-platform clipboard integration
+- Custom status bar with system information
+- Smart pane switching and resizing
+- Session management utilities
 
--   Basic dotfiles management
--   Essential tools installation
+### Modular ZSH System
+- Organized into functional modules
+- Easy to customize and extend
+- Supports multiple ZSH frameworks
+- Automatic plugin management
+- Theme system integration
 
----
+## Repository Structure
 
-## Directory Structure
+```
+dotfiles/                          ← This repository (configurations)
+├── .bashrc                        ← Bash configuration
+├── .tmux.conf                     ← Tmux configuration  
+├── .zshrc                         ← Main ZSH configuration
+├── truenas.zshrc                  ← TrueNAS-specific ZSH config
+├── zsh-modular/                   ← Modular ZSH system
+│   ├── modules/                   ← Individual ZSH modules
+│   ├── themes/                    ← ZSH themes
+│   └── plugins/                   ← ZSH plugins
+├── themes/                        ← Oh My Posh and terminal themes
+├── servstat.sh                    ← Server status monitoring
+└── README.md                      ← This file
 
-```plaintext
-dotfiles-bootstrap/
-├── bootstrap*                → universal bootstrap dispatcher
-├── bootstrap.sh             → bash/zsh installer
-├── bootstrap.ps1            → PowerShell installer  
-├── bootstrap.csh            → csh installer
-├── setup*                   → universal setup dispatcher
-├── setup.sh                 → bash/zsh tooling setup
-├── setup.ps1                → PowerShell tooling setup
-├── setup.csh                → csh tooling setup
-├── scripts/                 → utility scripts for setup
-│   ├── validate-system.sh   → system validation
-│   └── post-install.sh      → post-installation tasks
-├── documentation/           → setup documentation
-│   ├── Migration-Guide.md   → migration instructions
-│   ├── Troubleshooting.md   → common issues and solutions
-│   └── Platform-Notes.md    → platform-specific notes
-├── templates/               → template files for setup
-│   ├── gitconfig.template   → Git configuration template
-│   └── shell-aliases.template → common shell aliases
-├── wiki/                    → project wiki files
-│   ├── Home.md              → wiki home page
-│   ├── Installation.md      → detailed installation guide
-│   ├── Configuration.md     → configuration options
-│   └── FAQ.md               → frequently asked questions
-├── DotfilesUtility.psm1     → PowerShell utility module
-├── .gitignore               → ignore patterns
-├── LICENSE                  → project license
-└── README.md                → this documentation
+dotfiles-bootstrap/                ← Bootstrap repository (setup scripts)
+├── bootstrap*                     ← Installation scripts
+├── setup*                         ← Setup utilities
+└── ...                           ← Documentation and utilities
 ```
 
-Make the scripts executable:
+## Management
+
+After installation, use the `dotfiles` command to manage your configurations:
 
 ```bash
-chmod +x bootstrap bootstrap.sh setup setup.sh
-```
-
----
-
-## Managing Your Dotfiles
-
-After setup, use the `dotfiles` command to manage your configurations:
-
-```bash
-# Show status of tracked dotfiles
+# Check status
 dotfiles status
 
-# Add a new file to be tracked
-dotfiles add ~/.config/some-config-file
+# Add new dotfile
+dotfiles add .vimrc
 
 # Commit changes
-dotfiles commit -m "Add config for some-app"
+dotfiles commit -m "Add vim configuration"
 
-# Push changes to remote repository
+# Push changes
 dotfiles push
 
-# Pull latest changes on another machine
+# Pull latest changes
 dotfiles pull
 ```
 
----
-
 ## Customization
 
-### Adding New Tools to Setup
+### Adding Your Own Configurations
 
-Edit the appropriate setup file for your platform to add additional tools:
+1. **Fork this repository** to your GitHub account
+2. **Clone your fork** using the bootstrap scripts (update the URLs in bootstrap scripts)
+3. **Add your configurations** to the repository
+4. **Commit and push** your changes
 
--   `setup.ps1` for PowerShell
--   `setup.sh`  for Bash/Zsh
--   `setup.csh` for CSH/TCSH
+### Modifying Existing Configurations
 
-### Adding New Dotfiles
+1. **Edit the configuration files** directly in your home directory
+2. **Use the `dotfiles` command** to commit changes:
+   ```bash
+   dotfiles add .bashrc
+   dotfiles commit -m "Update bash aliases"
+   dotfiles push
+   ```
 
-1.  Create/edit the file in your home directory.
-2.  Track it with `dotfiles add <path-to-file>`.
-3.  Commit and push the changes.
+### Platform-Specific Configurations
 
----
+The configurations include automatic OS detection and will load platform-specific settings:
 
-### Related
+- **Linux**: Full feature set with package manager integration
+- **macOS**: Homebrew integration and macOS-specific aliases
+- **Windows**: WSL detection and Windows-specific paths
+- **FreeBSD/TrueNAS**: Specialized utilities for server management
 
-[kjanat/dotfiles](https://github.com/kjanat/dotfiles) – your actual config repo
+## Key Features Detail
 
----
+### Bash Configuration (.bashrc)
+- Cross-platform OS detection
+- Package manager integration (apt, yum, brew, pkg)
+- Git status in prompt
+- Directory navigation shortcuts
+- File operation aliases
+- Development environment setup
+- System monitoring utilities
 
-### Gitignore Settings
+### ZSH Configuration (.zshrc)
+- Oh My ZSH integration
+- Modular configuration system
+- Plugin management
+- Theme support
+- Completion enhancements
+- History optimization
 
-```gitignore
-# Backup and temp folders
-*.swp
-*~
-.DS_Store
-*.bak
-*.old
+### Tmux Configuration (.tmux.conf)
+- TPM (Tmux Plugin Manager) support
+- Vim-style key bindings
+- Mouse support with copy/paste
+- Status bar customization
+- Session management
+- Cross-platform clipboard integration
 
-# Dotfiles boot artifacts (not needed in repo)
-dotfiles-backup/
-```
+## Troubleshooting
+
+### Common Issues
+
+1. **Permission Denied**: Ensure scripts have execute permissions
+   ```bash
+   chmod +x ~/.dotfiles/servstat.sh
+   ```
+
+2. **Missing Dependencies**: Install required packages
+   ```bash
+   # Ubuntu/Debian
+   sudo apt install git curl zsh tmux
+   
+   # CentOS/RHEL
+   sudo yum install git curl zsh tmux
+   
+   # macOS
+   brew install git curl zsh tmux
+   ```
+
+3. **ZSH Not Default Shell**: Change default shell
+   ```bash
+   chsh -s $(which zsh)
+   ```
+
+### Getting Help
+
+- Check the [bootstrap repository](https://github.com/kjanat/dotfiles-bootstrap) for installation issues
+- Review the configuration files for customization options
+- Open an issue on GitHub for bugs or feature requests
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test on multiple platforms
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Related Repositories
+
+- [dotfiles-bootstrap](https://github.com/kjanat/dotfiles-bootstrap) - Bootstrap and setup scripts
+- [dotfiles](https://github.com/kjanat/dotfiles) - This repository (actual configurations)
