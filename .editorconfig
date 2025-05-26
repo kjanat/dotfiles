@@ -1,0 +1,335 @@
+# .editorconfig - Consistent coding styles across editors and IDEs
+# EditorConfig helps maintain consistent coding styles for multiple developers
+# working on the same project across various editors and IDEs.
+# See https://editorconfig.org for more information.
+
+root = true
+
+# =============================================================================
+# DEFAULT SETTINGS FOR ALL FILES
+# =============================================================================
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# =============================================================================
+# LANGUAGE-SPECIFIC SETTINGS
+# =============================================================================
+
+# Web Technologies (HTML, CSS, JavaScript, TypeScript)
+[*.{html,htm,css,scss,sass,less,js,jsx,ts,tsx,vue,svelte}]
+indent_size = 2
+
+# JSON and configuration files
+[*.{json,jsonc,yml,yaml,toml}]
+indent_size = 2
+
+# XML and related formats
+[*.{xml,xsl,xslt,svg,rss,atom}]
+indent_size = 2
+
+# Python
+[*.py]
+indent_size = 4
+max_line_length = 88
+
+# Java
+[*.java]
+indent_size = 4
+
+# C/C++
+[*.{c,h,cpp,hpp,cxx,hxx,cc}]
+indent_size = 4
+
+# C#
+[*.{cs,csx}]
+indent_size = 4
+
+# PHP
+[*.php]
+indent_size = 4
+
+# Ruby
+[*.{rb,rake}]
+indent_size = 2
+
+# Go
+[*.go]
+indent_style = tab
+indent_size = 4
+
+# Rust
+[*.rs]
+indent_size = 4
+max_line_length = 100
+
+# Shell scripts
+[*.{sh,bash,zsh,fish}]
+indent_size = 4
+
+# PowerShell
+[*.{ps1,psm1,psd1}]
+indent_size = 4
+
+# Perl
+[*.{pl,pm}]
+indent_size = 4
+
+# R
+[*.r]
+indent_size = 2
+
+# Lua
+[*.lua]
+indent_size = 2
+
+# Scala
+[*.scala]
+indent_size = 2
+
+# Kotlin
+[*.{kt,kts}]
+indent_size = 4
+
+# Swift
+[*.swift]
+indent_size = 4
+
+# Dart
+[*.dart]
+indent_size = 2
+
+# Haskell
+[*.hs]
+indent_size = 4
+
+# Elixir
+[*.{ex,exs}]
+indent_size = 2
+
+# Erlang
+[*.erl]
+indent_size = 4
+
+# Clojure
+[*.{clj,cljs,cljc,edn}]
+indent_size = 2
+
+# F#
+[*.fs]
+indent_size = 4
+
+# SQL
+[*.sql]
+indent_size = 2
+
+# =============================================================================
+# MARKUP AND DOCUMENTATION
+# =============================================================================
+
+# Markdown
+[*.{md,markdown,mkd}]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# reStructuredText
+[*.rst]
+indent_size = 3
+
+# LaTeX
+[*.{tex,bib}]
+indent_size = 2
+
+# AsciiDoc
+[*.{adoc,asciidoc}]
+indent_size = 2
+
+# =============================================================================
+# CONFIGURATION FILES
+# =============================================================================
+
+# Docker
+[Dockerfile*]
+indent_size = 4
+
+[*.{dockerfile,dockerignore}]
+indent_size = 4
+
+# Kubernetes/Helm
+[*.{k8s.yml,k8s.yaml}]
+indent_size = 2
+
+# Terraform
+[*.{tf,tfvars}]
+indent_size = 2
+
+# Ansible
+[*.{yml,yaml}]
+indent_size = 2
+
+# Makefile (requires tabs)
+[{Makefile,makefile,*.mk}]
+indent_style = tab
+indent_size = 4
+
+# CMake
+[{CMakeLists.txt,*.cmake}]
+indent_size = 2
+
+# Gradle
+[*.{gradle,gradle.kts}]
+indent_size = 4
+
+# Maven
+[pom.xml]
+indent_size = 2
+
+# npm/Node.js
+[{package.json,package-lock.json}]
+indent_size = 2
+
+# Composer (PHP)
+[composer.json]
+indent_size = 4
+
+# Cargo (Rust)
+[{Cargo.toml,Cargo.lock}]
+indent_size = 2
+
+# =============================================================================
+# IDE AND EDITOR SPECIFIC
+# =============================================================================
+
+# Visual Studio Code
+[*.{code-workspace,vscode}]
+indent_size = 2
+
+# JetBrains IDEs
+[*.{iml,idea}]
+indent_size = 2
+
+# Vim/Neovim
+[*.{vim,vimrc,nvim}]
+indent_size = 2
+
+# Emacs
+[*.{el,emacs}]
+indent_size = 2
+
+# Sublime Text
+[*.sublime-*]
+indent_size = 2
+
+# =============================================================================
+# DATA FILES
+# =============================================================================
+
+# CSV files
+[*.csv]
+trim_trailing_whitespace = false
+
+# TSV files
+[*.tsv]
+trim_trailing_whitespace = false
+indent_style = tab
+
+# Log files
+[*.log]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# =============================================================================
+# SPECIAL FILES
+# =============================================================================
+
+# Git configuration
+[.git*]
+indent_size = 4
+
+# Environment files
+[.env*]
+indent_size = 2
+
+# License files
+[LICENSE*]
+indent_size = 2
+
+# Changelog files
+[{CHANGELOG,HISTORY,CHANGES}*]
+indent_size = 2
+
+# README files
+[README*]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# =============================================================================
+# MINIFIED FILES (no formatting)
+# =============================================================================
+
+[*.min.*]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# =============================================================================
+# BINARY AND GENERATED FILES
+# =============================================================================
+
+# Images
+[*.{png,jpg,jpeg,gif,bmp,ico,svg}]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# Fonts
+[*.{woff,woff2,eot,ttf,otf}]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# Archives
+[*.{zip,tar,gz,bz2,xz,7z,rar}]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# =============================================================================
+# PLATFORM SPECIFIC
+# =============================================================================
+
+# Windows batch files
+[*.{bat,cmd}]
+end_of_line = crlf
+indent_size = 4
+
+# Windows PowerShell files
+[*.{ps1,psm1,psd1}]
+end_of_line = crlf
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# This .editorconfig provides:
+# 1. Consistent indentation across all file types
+# 2. Proper line ending handling (LF by default, CRLF for Windows-specific files)
+# 3. UTF-8 encoding for all text files
+# 4. Trailing whitespace removal (except where inappropriate)
+# 5. Final newline insertion
+# 6. Language-specific formatting rules
+# 7. Framework and tool-specific configurations
+
+# To use this configuration:
+# 1. Install EditorConfig plugin for your editor/IDE
+# 2. Place this file in your project root or home directory
+# 3. Your editor will automatically apply these settings
+
+# Popular editors with EditorConfig support:
+# - Visual Studio Code (built-in)
+# - JetBrains IDEs (built-in)
+# - Vim/Neovim (plugin: editorconfig/editorconfig-vim)
+# - Emacs (package: editorconfig)
+# - Sublime Text (plugin: EditorConfig)
+# - Atom (package: editorconfig)

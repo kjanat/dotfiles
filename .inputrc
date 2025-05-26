@@ -1,0 +1,325 @@
+# ~/.inputrc - GNU Readline configuration
+
+# Configuration for command-line editing in bash and other programs
+
+# =============================================================================
+
+# GENERAL SETTINGS
+
+# =============================================================================
+
+# Use Vi mode for command line editing
+
+set editing-mode vi
+
+# Case-insensitive completion
+
+set completion-ignore-case on
+
+# Complete words with hyphens and underscores as word separators
+
+set completion-map-case on
+
+# Show all completions at once instead of cycling through them
+
+set show-all-if-ambiguous on
+
+# Immediately show completions without double-tab
+
+set show-all-if-unmodified on
+
+# Display completions with common prefix highlighted
+
+set colored-completion-prefix on
+
+# Use colored output for completions
+
+set colored-stats on
+
+# Show file type indicators (like ls -F)
+
+set visible-stats on
+
+# Mark symlinked directories
+
+set mark-symlinked-directories on
+
+# Mark directories with trailing slash
+
+set mark-directories on
+
+# Don't ring bell on completion
+
+set bell-style none
+
+# Number of screen columns used to display completion matches
+
+set completion-display-width -1
+
+# Maximum number of completion matches to show at once
+
+set completion-query-items 200
+
+# =============================================================================
+
+# HISTORY SETTINGS
+
+# =============================================================================
+
+# Enable history expansion with space
+
+set expand-tilde on
+
+# Ignore duplicate lines in history
+
+set history-preserve-point on
+
+# =============================================================================
+
+# KEY BINDINGS - VI MODE
+
+# =============================================================================
+
+# Vi mode key bindings
+
+set keymap vi-insert
+
+# Ctrl-L to clear screen (like in emacs mode)
+
+"\C-l": clear-screen
+
+# Ctrl-A to go to beginning of line
+
+"\C-a": beginning-of-line
+
+# Ctrl-E to go to end of line
+
+"\C-e": end-of-line
+
+# Ctrl-K to kill to end of line
+
+"\C-k": kill-line
+
+# Ctrl-U to kill whole line
+
+"\C-u": unix-line-discard
+
+# Ctrl-W to kill word backwards
+
+"\C-w": unix-word-rubout
+
+# Ctrl-Y to yank
+
+"\C-y": yank
+
+# Ctrl-R for reverse history search
+
+"\C-r": reverse-search-history
+
+# Ctrl-S for forward history search
+
+"\C-s": forward-search-history
+
+# Use the text that has already been typed as the prefix for searching
+
+"\C-p": history-search-backward
+"\C-n": history-search-forward
+
+# Alt-. to insert last argument
+
+"\e.": yank-last-arg
+
+# Alt-_ to insert last argument (alternative)
+
+"\e_": yank-last-arg
+
+# Alt-Backspace to delete word backwards
+
+"\e\C-h": backward-kill-word
+
+# Alt-d to delete word forwards
+
+"\ed": kill-word
+
+# =============================================================================
+
+# VI COMMAND MODE BINDINGS
+
+# =============================================================================
+
+set keymap vi-command
+
+# Allow ctrl-L to clear the screen in command mode
+
+"\C-l": clear-screen
+
+# Ctrl-A to go to beginning of line in command mode
+
+"\C-a": beginning-of-line
+
+# Ctrl-E to go to end of line in command mode
+
+"\C-e": end-of-line
+
+# =============================================================================
+
+# EMACS MODE ALTERNATIVE BINDINGS
+
+# =============================================================================
+
+# Uncomment the following section if you prefer Emacs mode
+
+# set editing-mode emacs
+
+# set keymap emacs-standard
+
+# Standard Emacs bindings would be active by default in emacs mode
+
+# =============================================================================
+
+# APPLICATION-SPECIFIC SETTINGS
+
+# =============================================================================
+
+# MySQL client
+
+$if mysql
+    # Don't autocomplete table/column names
+    set disable-completion on
+$endif
+
+# Postgres client
+
+$if psql
+    # Enable completion for SQL keywords
+    set completion-ignore-case on
+$endif
+
+# SSH
+
+$if ssh
+    # Complete hostnames from known_hosts
+    set completion-ignore-case on
+$endif
+
+# =============================================================================
+
+# CONDITIONAL SETTINGS BASED ON TERMINAL
+
+# =============================================================================
+
+# Settings for specific terminals
+
+$if term=xterm
+    # xterm-specific settings
+    set convert-meta off
+    set input-meta on
+    set output-meta on
+$endif
+
+$if term=xterm-256color
+    # 256 color terminal settings
+    set convert-meta off
+    set input-meta on
+    set output-meta on
+$endif
+
+# =============================================================================
+
+# PLATFORM-SPECIFIC SETTINGS
+
+# =============================================================================
+
+# macOS specific settings
+
+$if Darwin
+    # macOS Terminal.app and iTerm2 work better with these settings
+    set completion-ignore-case on
+    set show-all-if-ambiguous on
+$endif
+
+# Linux specific settings  
+
+$if Linux
+    # Linux terminal settings
+    set bell-style visible
+$endif
+
+# =============================================================================
+
+# CUSTOM MACROS
+
+# =============================================================================
+
+# Quick directory navigation
+
+"\eo": "cd ..\n"
+"\eh": "cd ~\n"
+"\el": "ls -la\n"
+
+# Git shortcuts
+
+"\eg": "git status\n"
+"\ega": "git add .\n"
+"\egc": "git commit -m \""
+"\egp": "git push\n"
+
+# Docker shortcuts (if Docker is commonly used)
+
+"\ed": "docker "
+"\edc": "docker-compose "
+"\edps": "docker ps\n"
+
+# Common file operations
+
+"\et": "tail -f "
+"\ev": "vim "
+"\ec": "cat "
+
+# Network diagnostics
+
+"\ep": "ping "
+"\ess": "ss -tulpn\n"
+"\ens": "netstat -tulpn\n"
+
+# System monitoring
+
+"\eps": "ps aux | grep "
+"\etop": "top\n"
+"\eht": "htop\n"
+
+# =============================================================================
+
+# NOTES
+
+# =============================================================================
+
+# This configuration provides
+
+# 1. Vi-style command line editing (can be changed to emacs)
+
+# 2. Intelligent completion with case-insensitive matching
+
+# 3. Colored output and file type indicators
+
+# 4. Useful key bindings for productivity
+
+# 5. Application-specific settings
+
+# 6. Custom macros for common tasks
+
+#
+
+# To test your readline settings
+
+# - Type some text and use Ctrl-A, Ctrl-E to move
+
+# - Try Tab completion on file names
+
+# - Use Ctrl-R to search command history
+
+# - Press Escape to enter vi command mode, then use vi commands
+
+# To reload this configuration
+
+# bind -f ~/.inputrc

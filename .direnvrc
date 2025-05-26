@@ -1,0 +1,305 @@
+# ~/.direnvrc - direnv configuration
+# Configuration and shared functions for direnv
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+
+# Set log format (default is to show the .envrc file being sourced)
+export DIRENV_LOG_FORMAT=""
+
+# =============================================================================
+# SHARED HELPER FUNCTIONS
+# =============================================================================
+
+# Layout for Python development with virtual environments
+layout_python() {
+    local python=${1:-python3}
+    [[ $# -gt 0 ]] && shift
+    unset PYTHONHOME
+    if [[ -n $python ]]; then
+        local python_version
+        python_version=$("$python" -c "import platform; print(platform.python_version())")
+        if [[ -z $python_version ]]; then
+            log_error "Could not detect Python version"
+            return 1
+        fi
+        VIRTUAL_ENV=.venv
+        if [[ ! -d $VIRTUAL_ENV ]]; then
+            log_status "No virtual environment exists. Creating one with $python"
+            $python -m venv $VIRTUAL_ENV
+        fi
+        export VIRTUAL_ENV
+        PATH_add "$VIRTUAL_ENV/bin"
+        export PYTHONPATH="$VIRTUAL_ENV/lib/python$python_version/site-packages:$PYTHONPATH"
+    fi
+}
+
+# Layout for Python with pipenv
+layout_pipenv() {
+    PIPENV_PIPFILE="${PIPENV_PIPFILE:-Pipfile}"
+    if [[ ! -f "$PIPENV_PIPFILE" ]]; then
+        log_error "No Pipfile found. Use \`pipenv\` to create a \`$PIPENV_PIPFILE\` first."
+        exit 2
+    fi
+
+    VIRTUAL_ENV=$(
+        pipenv --venv 2>/dev/null
+        true
+    )
+
+    if [[ -z $VIRTUAL_ENV || ! -d $VIRTUAL_ENV ]]; then
+        log_status "No virtual environment exists. Creating one with pipenv"
+        pipenv install --dev
+        VIRTUAL_ENV=$(pipenv --venv)
+    fi
+
+    export VIRTUAL_ENV
+    PATH_add "$VIRTUAL_ENV/bin"
+}
+
+# Layout for Python with poetry
+layout_poetry() {
+    PYPROJECT_TOML="${PYPROJECT_TOML:-pyproject.toml}"
+    if [[ ! -f "$PYPROJECT_TOML" ]]; then
+        log_error "No pyproject.toml found. Use \`poetry init\` to create one first."
+        exit 2
+    fi
+
+    # create venv if it doesn't exist
+    poetry run true
+
+    export VIRTUAL_ENV=$(poetry env info --path)
+    export POETRY_ACTIVE=1
+    PATH_add "$VIRTUAL_ENV/bin"
+}
+
+# Layout for Node.js development
+layout_node() {
+    local node_version=${1:-}
+    if [[ -f .nvmrc ]]; then
+        node_version=$(cat .nvmrc)
+    fi
+
+    if [[ -n $node_version ]]; then
+        if command -v nvm >/dev/null 2>&1; then
+            nvm use "$node_version"
+        elif command -v fnm >/dev/null 2>&1; then
+            fnm use "$node_version"
+        fi
+    fi
+
+    # Add local node_modules/.bin to PATH
+    PATH_add node_modules/.bin
+}
+
+# Layout for Go development
+layout_go() {
+    export GOPATH="$PWD/.go"
+    PATH_add "$GOPATH/bin"
+    PATH_add bin
+}
+
+# Layout for Ruby development with rbenv
+layout_ruby() {
+    local ruby_version=${1:-}
+    if [[ -f .ruby-version ]]; then
+        ruby_version=$(cat .ruby-version)
+    fi
+
+    if [[ -n $ruby_version ]] && command -v rbenv >/dev/null 2>&1; then
+        rbenv local "$ruby_version"
+    fi
+
+    # Add local gems to PATH
+    PATH_add vendor/bundle/bin
+    PATH_add .bundle/bin
+}
+
+# Layout for Rust development
+layout_rust() {
+    PATH_add target/debug
+    PATH_add target/release
+}
+
+# Layout for PHP development with Composer
+layout_php() {
+    PATH_add vendor/bin
+}
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+# Load environment variables from a file
+dotenv() {
+    local env_file=${1:-.env}
+    if [[ -f $env_file ]]; then
+        set -a
+        source "$env_file"
+        set +a
+    fi
+}
+
+# Load environment variables from multiple files
+dotenv_if_exists() {
+    for file in "$@"; do
+        if [[ -f $file ]]; then
+            dotenv "$file"
+        fi
+    done
+}
+
+# Use a specific version of a tool via asdf
+use_asdf() {
+    local tool_name=$1
+    local tool_version=$2
+
+    if [[ -z $tool_version ]]; then
+        if [[ -f .tool-versions ]]; then
+            tool_version=$(grep "^$tool_name " .tool-versions | cut -d' ' -f2)
+        fi
+    fi
+
+    if [[ -n $tool_version ]] && command -v asdf >/dev/null 2>&1; then
+        asdf local "$tool_name" "$tool_version"
+        asdf reshim "$tool_name"
+    fi
+}
+
+# Add multiple directories to PATH
+path_add_dirs() {
+    for dir in "$@"; do
+        if [[ -d $dir ]]; then
+            PATH_add "$dir"
+        fi
+    done
+}
+
+# Set up database URL for development
+use_database_url() {
+    local db_type=${1:-postgres}
+    local db_name=${2:-$(basename "$PWD")}
+    local db_user=${3:-$USER}
+    local db_host=${4:-localhost}
+    local db_port=${5:-5432}
+
+    case $db_type in
+    postgres | postgresql)
+        export DATABASE_URL="postgresql://$db_user@$db_host:$db_port/$db_name"
+        ;;
+    mysql)
+        export DATABASE_URL="mysql://$db_user@$db_host:3306/$db_name"
+        ;;
+    sqlite)
+        export DATABASE_URL="sqlite:///$PWD/$db_name.db"
+        ;;
+    esac
+}
+
+# Load secrets from 1Password, LastPass, etc.
+load_secrets() {
+    if command -v op >/dev/null 2>&1; then
+        # 1Password CLI integration
+        eval $(op signin)
+    fi
+}
+
+# =============================================================================
+# PLATFORM-SPECIFIC HELPERS
+# =============================================================================
+
+# macOS specific
+if [[ $(uname -s) == "Darwin" ]]; then
+    # Add Homebrew paths
+    use_brew() {
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -f /usr/local/bin/brew ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+    }
+fi
+
+# Linux specific
+if [[ $(uname -s) == "Linux" ]]; then
+    # Add Linuxbrew paths
+    use_linuxbrew() {
+        if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+    }
+fi
+
+# =============================================================================
+# INTEGRATION HELPERS
+# =============================================================================
+
+# Load nix-shell environment
+use_nix() {
+    if [[ -f shell.nix ]] || [[ -f default.nix ]]; then
+        watch_file shell.nix
+        watch_file default.nix
+        eval "$(nix print-dev-env)"
+    fi
+}
+
+# Use Docker Compose for development
+use_docker_compose() {
+    if [[ -f docker-compose.yml ]] || [[ -f docker-compose.yaml ]]; then
+        log_status "Docker Compose file found. Services available:"
+        docker-compose config --services 2>/dev/null | sed 's/^/  - /'
+    fi
+}
+
+# Load Kubernetes context
+use_kubernetes() {
+    local context=${1:-}
+    local namespace=${2:-default}
+
+    if [[ -n $context ]] && command -v kubectl >/dev/null 2>&1; then
+        kubectl config use-context "$context"
+        kubectl config set-context --current --namespace="$namespace"
+        export KUBECONFIG="$HOME/.kube/config"
+    fi
+}
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# This .direnvrc provides:
+# 1. Language-specific layouts (Python, Node.js, Go, Ruby, etc.)
+# 2. Environment variable loading from .env files
+# 3. Integration with version managers (nvm, rbenv, asdf, etc.)
+# 4. Database URL configuration helpers
+# 5. Platform-specific optimizations
+
+# Common usage patterns in .envrc files:
+
+# Python project:
+# layout python
+# dotenv
+
+# Node.js project:
+# layout node
+# dotenv .env.local .env
+
+# Go project:
+# layout go
+# export CGO_ENABLED=0
+
+# Ruby project:
+# layout ruby
+# use_asdf ruby 3.0.0
+
+# Multi-language project:
+# layout python
+# layout node
+# use_asdf golang 1.19.0
+# dotenv
+
+# With database:
+# layout python
+# use_database_url postgres myapp_dev
+# dotenv

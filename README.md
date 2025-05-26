@@ -26,12 +26,36 @@ iex (iwr 'https://raw.githubusercontent.com/kjanat/dotfiles-bootstrap/master/boo
 -   **`.zshrc`** - Main ZSH configuration with modular system support
 -   **`truenas.zshrc`** - TrueNAS/FreeBSD-specific ZSH configuration
 -   **`zsh-modular/`** - Modular ZSH system for organized configuration
+-   **`.inputrc`** - GNU Readline configuration for command-line editing
 
-### Terminal Multiplexer
+### Terminal Applications
 
 -   **`.tmux.conf`** - Advanced Tmux configuration with plugins and custom layouts
+-   **`.screenrc`** - GNU Screen configuration for terminal multiplexing
+-   **`.vimrc`** - Comprehensive Vim/Neovim configuration for text editing
 
-### Utilities
+### Development Tools
+
+-   **`.gitconfig`** - Git configuration with aliases and security settings
+-   **`.gitignore_global`** - Global Git ignore patterns for all projects
+-   **`.editorconfig`** - Consistent coding styles across editors and IDEs
+-   **`.direnvrc`** - Environment management with direnv
+
+### Network and System Tools
+
+-   **`.ssh/config`** - SSH client configuration with security best practices
+-   **`.curlrc`** - Default curl options and settings
+-   **`.wgetrc`** - Default wget options and settings
+
+### Package Managers
+
+-   **`.npmrc`** - npm (Node.js) package manager configuration
+-   **`.yarnrc`** - Yarn Classic package manager configuration
+-   **`.yarnrc.yml`** - Yarn Berry (v2+) package manager configuration
+-   **`.pypirc`** - Python Package Index configuration
+-   **`.pip/pip.conf`** - pip (Python) package installer configuration
+
+### Utilities and Scripts
 
 -   **`servstat.sh`** - Server status monitoring script
 -   **`themes/`** - Oh My Posh and shell themes
@@ -43,51 +67,61 @@ iex (iwr 'https://raw.githubusercontent.com/kjanat/dotfiles-bootstrap/master/boo
 
 ## Features
 
-### Cross-Platform Support
+### Comprehensive Configuration Categories
 
--   **Linux** - Full feature support
--   **macOS** - Native macOS integration
--   **Windows** - WSL and native PowerShell support
--   **FreeBSD/TrueNAS** - Specialized configuration for FreeBSD systems
+#### Text Editors and Development
 
-### Shell Features (.bashrc/.zshrc)
+-   **Cross-platform Vim configuration** with syntax highlighting, plugin support, and development-focused settings
+-   **EditorConfig** for consistent coding styles across different editors and IDEs
+-   **Git integration** with comprehensive aliases, security settings, and global ignore patterns
 
--   Smart OS detection and platform-specific configurations
--   50+ useful aliases for common commands
--   Git integration with status and branch information
--   Directory navigation shortcuts
--   Development environment setup
--   Server administration utilities
+#### Shell and Terminal
 
-### Tmux Configuration
+-   **Multi-shell support** (Bash, ZSH) with intelligent OS detection and platform-specific optimizations
+-   **Terminal multiplexer configurations** (Tmux, Screen) with productivity-focused key bindings
+-   **Command-line enhancement** with GNU Readline configuration for improved editing experience
 
--   Plugin manager (TPM) support
--   Vim-style navigation
--   Cross-platform clipboard integration
--   Custom status bar with system information
--   Smart pane switching and resizing
--   Session management utilities
+#### Development Environment
 
-### Modular ZSH System
+-   **Environment management** with direnv for automatic project environment setup
+-   **Package manager configurations** for Node.js (npm, Yarn), Python (pip, PyPI), and more
+-   **SSH configuration** with security best practices and connection optimization
 
--   Organized into functional modules
--   Easy to customize and extend
--   Supports multiple ZSH frameworks
--   Automatic plugin management
--   Theme system integration
+#### Network and System
+
+-   **Network tool configurations** (curl, wget) with sensible defaults and security settings
+-   **Service monitoring utilities** with cross-platform server status functions
+-   **Security-focused settings** with modern encryption standards and best practices
 
 ## Repository Structure
 
-```
+```text
 dotfiles/                          ← This repository (configurations)
 ├── .bashrc                        ← Bash configuration
-├── .tmux.conf                     ← Tmux configuration  
 ├── .zshrc                         ← Main ZSH configuration
 ├── truenas.zshrc                  ← TrueNAS-specific ZSH config
 ├── zsh-modular/                   ← Modular ZSH system
 │   ├── modules/                   ← Individual ZSH modules
 │   ├── themes/                    ← ZSH themes
 │   └── plugins/                   ← ZSH plugins
+├── .inputrc                       ← GNU Readline configuration
+├── .tmux.conf                     ← Tmux configuration
+├── .screenrc                      ← GNU Screen configuration
+├── .vimrc                         ← Vim/Neovim configuration
+├── .gitconfig                     ← Git configuration
+├── .gitignore_global              ← Global Git ignore patterns
+├── .editorconfig                  ← Editor configuration
+├── .direnvrc                      ← Environment management
+├── .ssh/                          ← SSH configuration
+│   └── config                     ← SSH client settings
+├── .curlrc                        ← Curl default options
+├── .wgetrc                        ← Wget default options
+├── .npmrc                         ← npm configuration
+├── .yarnrc                        ← Yarn Classic configuration
+├── .yarnrc.yml                    ← Yarn Berry configuration
+├── .pypirc                        ← Python Package Index config
+├── .pip/                          ← Python pip configuration
+│   └── pip.conf                   ← pip settings
 ├── themes/                        ← Oh My Posh and terminal themes
 ├── servstat.sh                    ← Server status monitoring
 └── README.md                      ← This file
@@ -97,6 +131,22 @@ dotfiles-bootstrap/                ← Bootstrap repository (setup scripts)
 ├── setup*                         ← Setup utilities
 └── ...                           ← Documentation and utilities
 ```
+
+## Key Features
+
+### Cross-Platform Support
+
+-   **Linux** - Full feature support with platform-specific optimizations
+-   **macOS** - Native macOS integration and Homebrew support
+-   **Windows** - WSL and native PowerShell compatibility
+-   **FreeBSD/TrueNAS** - Specialized configuration for FreeBSD systems
+
+### Development Environment
+
+-   **Multi-language support** - Configurations for Python, Node.js, Go, Ruby, Rust, and more
+-   **Version management** - Integration with nvm, rbenv, pyenv, and asdf
+-   **Environment isolation** - Automatic environment setup with direnv
+-   **Package management** - Optimized configurations for npm, yarn, pip, and other package managers
 
 ## Management
 

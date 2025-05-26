@@ -1,0 +1,278 @@
+# ~/.screenrc - GNU Screen configuration
+
+# Configuration for GNU Screen terminal multiplexer
+
+# =============================================================================
+
+# GENERAL SETTINGS
+
+# =============================================================================
+
+# Start screen with shell
+
+shell bash
+
+# Default encoding
+
+defutf8 on
+
+# Scroll buffer size
+
+defscrollback 10000
+
+# Visual bell instead of audible
+
+vbell on
+vbell_msg "Bell!"
+
+# Disable startup message
+
+startup_message off
+
+# Monitor activity in windows
+
+defmonitor on
+
+# =============================================================================
+
+# STATUS LINE
+
+# =============================================================================
+
+# Enable hardware status line
+
+hardstatus on
+
+# Status line format and position
+
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+
+# Caption for window titles
+
+caption always "%{= kc}Screen session on %H (system load: %l)%-21=%{= .m}%D %d.%m.%Y %0c"
+
+# =============================================================================
+
+# KEY BINDINGS
+
+# =============================================================================
+
+# Change escape key from Ctrl-A to Ctrl-Z (comment out if you prefer Ctrl-A)
+
+# escape ^Zz
+
+# Bind function keys
+
+bindkey -k k1 select 1   # F1
+bindkey -k k2 select 2   # F2
+bindkey -k k3 select 3   # F3
+bindkey -k k4 select 4   # F4
+bindkey -k k5 select 5   # F5
+bindkey -k k6 select 6   # F6
+bindkey -k k7 select 7   # F7
+bindkey -k k8 select 8   # F8
+bindkey -k k9 select 9   # F9
+bindkey -k k; select 10  # F10
+
+# Mouse support
+
+mousetrack on
+
+# Bind Alt+Tab to switch to last window
+
+bindkey "^[^I" other
+
+# Bind Ctrl-Backspace to previous window
+
+bindkey "^[^?" prev
+
+# =============================================================================
+
+# WINDOW MANAGEMENT
+
+# =============================================================================
+
+# Automatic window titles
+
+shelltitle "$ |bash"
+
+# Default windows
+
+screen -t "main" 0 bash
+screen -t "edit" 1 bash
+screen -t "log" 2 bash
+
+# Window numbering starts from 1
+
+bind c screen 1
+bind ^c screen 1
+bind 0 select 10
+
+# =============================================================================
+
+# TERMINAL SETTINGS
+
+# =============================================================================
+
+# Terminal type
+
+term screen-256color
+
+# Fix for residual editor text
+
+altscreen on
+
+# Silence
+
+silence on
+
+# =============================================================================
+
+# COPY MODE SETTINGS
+
+# =============================================================================
+
+# Use vi-style key bindings in copy mode
+
+markkeys "h=^B:l=^F:$=^E:^U=^Z:^D=^V"
+
+# =============================================================================
+
+# LOGGING
+
+# =============================================================================
+
+# Log directory
+
+logfile "$HOME/.screen/logs/screen-%t-%n.log"
+
+# Auto-logging
+
+# deflog on
+
+# =============================================================================
+
+# SECURITY
+
+# =============================================================================
+
+# Multiuser mode (disabled for security)
+
+multiuser off
+
+# =============================================================================
+
+# STARTUP COMMANDS
+
+# =============================================================================
+
+# Automatically detach on logout
+
+autodetach on
+
+# =============================================================================
+
+# POWER MANAGEMENT
+
+# =============================================================================
+
+# Blank screen after 5 minutes of inactivity
+
+idle 300 blanker
+
+# =============================================================================
+
+# BELL SETTINGS
+
+# =============================================================================
+
+# Activity monitoring
+
+activity "Activity in window %n (%t) [%w:%s]~"
+
+# Bell monitoring
+
+bell_msg "Bell in window %n (%t) [%w:%s]~"
+
+# =============================================================================
+
+# ENVIRONMENT
+
+# =============================================================================
+
+# Set environment variables
+
+setenv DISPLAY ':0'
+
+# =============================================================================
+
+# NOTES
+
+# =============================================================================
+
+# This configuration provides
+
+# 1. Enhanced status line with system information
+
+# 2. Function key bindings for quick window selection
+
+# 3. Vi-style copy mode
+
+# 4. Activity and bell monitoring
+
+# 5. Mouse support
+
+# 6. Logging capabilities
+
+# 7. Multiple default windows
+
+# Basic Screen commands
+
+# Ctrl-A c          Create new window
+
+# Ctrl-A n          Next window
+
+# Ctrl-A p          Previous window
+
+# Ctrl-A "          List all windows
+
+# Ctrl-A A          Rename current window
+
+# Ctrl-A d          Detach from session
+
+# Ctrl-A k          Kill current window
+
+# Ctrl-A [          Enter copy mode
+
+# Ctrl-A ]          Paste
+
+# Session management
+
+# screen -S session_name     Create named session
+
+# screen -ls                 List sessions
+
+# screen -r session_name     Reattach to session
+
+# screen -x session_name     Attach to existing session
+
+# Advanced features
+
+# Ctrl-A S          Split screen horizontally
+
+# Ctrl-A |          Split screen vertically
+
+# Ctrl-A Tab        Switch between split regions
+
+# Ctrl-A X          Remove current split region
+
+# Ctrl-A Q          Remove all split regions except current
+
+# For modern alternatives, consider
+
+# - tmux (more features, active development)
+
+# - byobu (wrapper around screen/tmux)
+
+# - zellij (modern, Rust-based)
