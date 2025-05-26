@@ -1,0 +1,42 @@
+# Git Configuration Template
+# This file is used by setup scripts to configure basic Git settings
+
+[user]
+    name = Your Name
+    email = your.email@example.com
+
+[core]
+    editor = vim
+    autocrlf = input
+    safecrlf = true
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    default = simple
+
+[alias]
+    # Common aliases
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    visual = !gitk
+    
+    # Dotfiles management (added by bootstrap)
+    # dotfiles = git --git-dir=$HOME/.dotfiles --work-tree=$HOME
+
+[color]
+    ui = auto
+
+[diff]
+    tool = vimdiff
+
+[merge]
+    tool = vimdiff

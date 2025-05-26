@@ -6,9 +6,12 @@ This folder contains cross-platform scripts to bootstrap and configure your pers
 -   **Windows** (PowerShell / WSL)
 -   **FreeBSD / TrueNAS** (csh/tcsh)
 
-> [!NOTE]
-> Your actual dotfiles are managed separately at [kjanat/dotfiles](https://github.com/kjanat/dotfiles).  
+> [!IMPORTANT]
+> This repository contains **bootstrap and setup scripts only**. Your actual dotfiles (config files) should be managed in a separate repository at [kjanat/dotfiles](https://github.com/kjanat/dotfiles).  
 > These scripts clone and configure that repo as a bare Git repo in `~/.dotfiles`.
+
+> [!WARNING]  
+> Do not put your actual dotfiles (.zshrc, .vimrc, etc.) in this repository. They belong in your separate dotfiles repository.
 
 ## Overview
 
@@ -80,18 +83,34 @@ This script:
 ## Directory Structure
 
 ```plaintext
-dotfiles/
-├── bootstrap*       → universal bootstrap dispatcher
-├── bootstrap.sh     → bash/zsh installer
-├── bootstrap.ps1    → PowerShell installer
-├── bootstrap.csh    → csh installer
-├── setup*           → universal setup dispatcher
-├── setup.sh         → bash/zsh tooling
-├── setup.ps1        → PowerShell tooling
-├── setup.csh        → csh tooling
-├── .themes/         → themes folder for shells
-│   └── kjanat.omp.json  → Oh My Posh theme for PowerShell
-└── README.md        → documentation
+dotfiles-bootstrap/
+├── bootstrap*                → universal bootstrap dispatcher
+├── bootstrap.sh             → bash/zsh installer
+├── bootstrap.ps1            → PowerShell installer  
+├── bootstrap.csh            → csh installer
+├── setup*                   → universal setup dispatcher
+├── setup.sh                 → bash/zsh tooling setup
+├── setup.ps1                → PowerShell tooling setup
+├── setup.csh                → csh tooling setup
+├── scripts/                 → utility scripts for setup
+│   ├── validate-system.sh   → system validation
+│   └── post-install.sh      → post-installation tasks
+├── documentation/           → setup documentation
+│   ├── Migration-Guide.md   → migration instructions
+│   ├── Troubleshooting.md   → common issues and solutions
+│   └── Platform-Notes.md    → platform-specific notes
+├── templates/               → template files for setup
+│   ├── gitconfig.template   → Git configuration template
+│   └── shell-aliases.template → common shell aliases
+├── wiki/                    → project wiki files
+│   ├── Home.md              → wiki home page
+│   ├── Installation.md      → detailed installation guide
+│   ├── Configuration.md     → configuration options
+│   └── FAQ.md               → frequently asked questions
+├── DotfilesUtility.psm1     → PowerShell utility module
+├── .gitignore               → ignore patterns
+├── LICENSE                  → project license
+└── README.md                → this documentation
 ```
 
 Make the scripts executable:
@@ -141,11 +160,11 @@ Edit the appropriate setup file for your platform to add additional tools:
 2.  Track it with `dotfiles add <path-to-file>`.
 3.  Commit and push the changes.
 
-<!-- ---
+---
 
 ### Related
 
-[kjanat/dotfiles](https://github.com/kjanat/dotfiles) – your actual config repo -->
+[kjanat/dotfiles](https://github.com/kjanat/dotfiles) – your actual config repo
 
 ---
 

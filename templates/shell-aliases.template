@@ -1,0 +1,56 @@
+# Common Shell Aliases Template
+# This file contains common aliases that can be sourced by various shell configurations
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+
+# List files
+alias ll='ls -alhF'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -altrh'  # Sort by time, most recent last
+alias lsize='ls -lSrh' # Sort by size, largest last
+
+# Safety
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Shortcuts
+alias h='history'
+alias j='jobs -l'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# System info
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ps='ps aux'
+
+# Network
+alias ping='ping -c 5'
+alias ports='netstat -tulanp'
+
+# Git (if not using dotfiles)
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log'
+alias gd='git diff'
+alias gb='git branch'
+alias gco='git checkout'
+
+# Development
+alias py='python3'
+alias pip='pip3'
+alias serve='python3 -m http.server'
+
+# Platform-specific aliases will be added by setup scripts

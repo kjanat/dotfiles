@@ -1,0 +1,62 @@
+# Backup and temp folders
+*.swp
+*~
+.DS_Store
+*.bak
+*.old
+Thumbs.db
+ehthumbs.db
+
+# Dotfiles boot artifacts (not needed in repo)
+dotfiles-backup/
+.dotfiles-backup/
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.Spotlight-V100
+.Trashes
+._*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled files
+*.o
+*.so
+*.dll
+*.exe
+
+# Environment files (should not be committed)
+.env
+.env.local
+.env.*.local
+
+# Actual dotfiles belong in the separate dotfiles repository
+# Do not commit actual config files here
+.zshrc
+.bashrc
+.vimrc
+.gitconfig
+.tmux.conf
+truenas.zshrc
+zsh-modular/
+ZSH-README.md
+
+# Trunk (code quality tool) artifacts
+.trunk/
