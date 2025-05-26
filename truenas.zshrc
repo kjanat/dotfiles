@@ -12,7 +12,7 @@
 #    ██║   ██║  ██║╚██████╔╝███████╗██║ ╚████║██║  ██║███████║
 #    ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
 #
-# ULTIMATE TrueNAS ZSH Configuration - Beast Mode Enabled!
+# ULTIMATE TrueNAS ZSH Configuration
 
 # ============================================================================
 # PERFORMANCE OPTIMIZATION
@@ -93,26 +93,26 @@ add-zsh-hook precmd precmd_disable_paste
 # ============================================================================
 
 # Core environment
-umask 022
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export EDITOR=nano
-export PAGER=less
-export BROWSER=lynx
-export IGNORE_OSVERSION=yes
+umask 022                   # Set default permissions to 755 for directories and 644 for files
+export LANG=en_US.UTF-8     # Set default locale to UTF-8
+export LC_ALL=en_US.UTF-8   # Set all locale categories to UTF-8
+export EDITOR=nano          # Set default text editor
+export PAGER=less           # Set default pager
+export BROWSER=lynx         # Set default web browser
+export IGNORE_OSVERSION=yes # Ignore OS version checks
 
 # Enhanced PATH
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:$HOME/bin:$HOME/.local/bin:/usr/games
 
 # Less configuration for better viewing
-export LESSOPEN="| /usr/bin/lesspipe %s"
-export LESSCLOSE="/usr/bin/lesspipe %s %s"
-export LESS='-F -g -i -M -R -S -w -X -z-4'
-export LESSHISTFILE=-
+export LESSOPEN="| /usr/bin/lesspipe %s"    # Use lesspipe for automatic file type detection
+export LESSCLOSE="/usr/bin/lesspipe %s %s"  # Close lesspipe after viewing
+export LESS='-F -g -i -M -R -S -w -X -z-4'  # Less options for better usability
+export LESSHISTFILE=-                       # Disable less history file
 
 # Grep colors
-export GREP_COLOR='1;32'
-export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;32'            # Set default grep color to bright green
+export GREP_OPTIONS='--color=auto'  # Enable color output for grep
 
 # Terminal initialization function - Ensures keyboard shortcuts work properly
 init_terminal() {
@@ -188,7 +188,7 @@ alias du='du -h'
 alias free='freebsd_meminfo'
 alias ps='ps -aux'
 alias psg='ps -aux | grep -v grep | grep -i -e VSZ -e'
-alias top='htop 2>/dev/null || top'
+# alias top='htop 2>/dev/null || top'
 alias iotop='iotop 2>/dev/null || iostat'
 alias nethogs='nethogs 2>/dev/null || echo "nethogs not installed"'
 
@@ -1623,10 +1623,13 @@ netinfo() {
     echo "🌐 Network Information:"
     echo "=== Interfaces ==="
     ifconfig | grep -E "(inet |UP,|flags=)"
+
     echo "=== Routing Table ==="
     netstat -rn
+
     echo "=== DNS Servers ==="
     cat /etc/resolv.conf | grep nameserver
+
     echo "=== Open Connections ==="
     netstat -uln -p tcp | head -20
 }
@@ -1639,7 +1642,10 @@ seccheck() {
     grep "Failed password" /var/log/auth.log 2>/dev/null | tail -5 || echo "No auth.log found"
 
     echo "=== Open Ports ==="
-    netstat -uln -p tcp | grep LISTEN
+    netstat -4lCna --libxo json \
+      | jq -r '["PROTOCOL", "ADDRESS", "PORT", "STATE"], (.statistics.socket[] | select(.["tcp-state"] != null and (if .["tcp-state"] | type == "string" then .["tcp-state"] | contains("LISTEN") else false end)) | [.protocol, .local.address, .local.port, .["tcp-state"]]) | @tsv' \
+      | sort -nk3 -k2 -k1 \
+      | column -t
 
     echo "=== Root Login Sessions ==="
     last root | head -5
@@ -1652,14 +1658,14 @@ seccheck() {
 perfmon() {
     echo "⚡ Performance Monitor:"
     echo "=== CPU Usage ==="
-    top -bn1 | grep "Cpu(s)" || iostat -c 1 1 | tail -1
+    top -nt1 | grep "Cpu(s)" || iostat -c 1 1 | tail -1
 
     echo "=== Memory Usage ==="
     echo "Total: $(sysctl -n hw.physmem | awk '{printf "%.1f GB", $1/1024/1024/1024}')"
     echo "Free: $(sysctl -n vm.stats.vm.v_free_count vm.stats.vm.v_page_size | awk 'NR==1{free=$1} NR==2{pagesize=$1} END{printf "%.1f GB", (free*pagesize)/1024/1024/1024}')"
 
     echo "=== Disk I/O ==="
-    iostat -d 1 1 2>/dev/null | tail -n +4 || echo "iostat not available"
+    iostat 1 2>/dev/null || iostat -d 1 1 2>/dev/null || echo "iostat not available"
 
     echo "=== Network I/O ==="
     # FreeBSD doesn't have /proc/net/dev, use netstat instead
@@ -1844,6 +1850,9 @@ sysupdate() {
 # Directory hashes for quick navigation
 hash -d freenas=/mnt/PoolONE/FreeNAS
 hash -d pools=/mnt
+hash -d jails=/mnt/FlashONE/iocage/jails
+hash -d media=/mnt/PoolONE/FreeNAS/Media
+hash -d nextcloud=/mnt/PoolONE/Nextcloud/kjanat/files
 hash -d logs=/var/log
 hash -d etc=/etc
 hash -d usr=/usr/local
@@ -1997,13 +2006,46 @@ fi
 # Shellcheck-clean with proper error handling and features
 
 # Plugin directory configuration
-ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-$HOME/.zsh/plugins}"
+# Set default plugin directory, but use a fallback if the directory doesn't exist or isn't accessible
+if [[ -z "$ZSH_PLUGIN_DIR" ]]; then
+    if [[ -d "$HOME/.zsh/plugins" ]] && [[ -w "$HOME/.zsh/plugins" ]]; then
+        ZSH_PLUGIN_DIR="$HOME/.zsh/plugins"
+    elif [[ -d "$HOME/.local/share/zsh/plugins" ]] && [[ -w "$HOME/.local/share/zsh/plugins" ]]; then
+        ZSH_PLUGIN_DIR="$HOME/.local/share/zsh/plugins"
+    else
+        # Create a temporary directory in /tmp that is writable and won't cause errors
+        ZSH_PLUGIN_DIR="/tmp/zsh-${USER}-plugins"
+        # We'll create this in _ensure_plugin_dir if needed
+    fi
+fi
 
 # Create plugin directory if it doesn't exist
 _ensure_plugin_dir() {
     if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
-        mkdir -p "$ZSH_PLUGIN_DIR"
-        echo "📁 Created plugin directory: $ZSH_PLUGIN_DIR"
+        # Try to create the directory
+        mkdir -p "$ZSH_PLUGIN_DIR" 2>/dev/null
+        
+        # Check if creation was successful
+        if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
+            # If creation failed, fall back to a temporary directory
+            ZSH_PLUGIN_DIR="/tmp/zsh-${USER}-plugins"
+            mkdir -p "$ZSH_PLUGIN_DIR" 2>/dev/null
+            
+            # If even this fails, use /tmp directly as a last resort
+            if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
+                ZSH_PLUGIN_DIR="/tmp"
+            fi
+        else
+            echo "📁 Created plugin directory: $ZSH_PLUGIN_DIR"
+        fi
+    fi
+    
+    # Verify we have write permissions in the directory
+    if [[ ! -w "$ZSH_PLUGIN_DIR" ]]; then
+        echo "⚠️ Warning: No write permission in plugin directory: $ZSH_PLUGIN_DIR"
+        # Fall back to a temporary directory
+        ZSH_PLUGIN_DIR="/tmp/zsh-${USER}-plugins"
+        mkdir -p "$ZSH_PLUGIN_DIR" 2>/dev/null
     fi
 }
 
@@ -2279,12 +2321,34 @@ update_plugin() {
 _autoload_plugins() {
     _ensure_plugin_dir
     
+    # Check if plugin directory exists
     if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
         return 0
     fi
     
-    local loaded_count=0
+    # Check if plugin directory contains any items before iterating
+    if ! compgen -G "$ZSH_PLUGIN_DIR/*" > /dev/null 2>&1; then
+        # No plugins found, silently exit
+        return 0
+    fi
     
+    local loaded_count=0
+    local plugin_exists=false
+    
+    # Check if any plugin directories exist
+    for item in "$ZSH_PLUGIN_DIR"/*; do
+        if [[ -d "$item" ]]; then
+            plugin_exists=true
+            break
+        fi
+    done
+    
+    # If no plugin directories exist, return silently
+    if [[ "$plugin_exists" == false ]]; then
+        return 0
+    fi
+    
+    # Now we know we have at least one plugin directory, proceed with loading
     for plugin_dir in "$ZSH_PLUGIN_DIR"/*; do
         if [[ -d "$plugin_dir" ]]; then
             local plugin_name
@@ -2339,8 +2403,11 @@ plugin_help() {
 # Initialize plugin system
 ZSH_LOADED_PLUGINS=()
 
-# Auto-load plugins on shell startup (uncomment to enable)
-_autoload_plugins
+# Auto-load plugins on shell startup with error handling
+{
+    # Attempt to auto-load plugins, but suppress any error messages
+    _autoload_plugins
+} 2>/dev/null
 
 # ============================================================================
 # PERFORMANCE MONITORING

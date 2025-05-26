@@ -90,7 +90,7 @@ dotfiles/
 ├── setup.ps1        → PowerShell tooling
 ├── setup.csh        → csh tooling
 ├── .themes/         → themes folder for shells
-│   └── kjanat.omp.json → Oh My Posh theme for PowerShell
+│   └── kjanat.omp.json  → Oh My Posh theme for PowerShell
 └── README.md        → documentation
 ```
 
@@ -137,9 +137,9 @@ Edit the appropriate setup file for your platform to add additional tools:
 
 ### Adding New Dotfiles
 
-1.  Create/edit the file in your home directory
-2.  Track it with `dotfiles add <path-to-file>`
-3.  Commit and push the changes
+1.  Create/edit the file in your home directory.
+2.  Track it with `dotfiles add <path-to-file>`.
+3.  Commit and push the changes.
 
 ---
 
