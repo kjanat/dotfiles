@@ -37,7 +37,7 @@ This script auto-detects your shell and runs the correct bootstrap for:
 
 It will:
 
--   Clone your dotfiles from kjanat/dotfiles
+-   Clone your dotfiles from [kjanat/dotfiles](https://github.com/kjanat/dotfiles)
 -   Backup any conflicting files
 -   Set up your home dir with your configs
 
@@ -132,7 +132,7 @@ dotfiles pull
 Edit the appropriate setup file for your platform to add additional tools:
 
 -   `setup.ps1` for PowerShell
--   `setup.sh` for Bash/Zsh
+-   `setup.sh`  for Bash/Zsh
 -   `setup.csh` for CSH/TCSH
 
 ### Adding New Dotfiles
@@ -141,11 +141,11 @@ Edit the appropriate setup file for your platform to add additional tools:
 2.  Track it with `dotfiles add <path-to-file>`.
 3.  Commit and push the changes.
 
----
+<!-- ---
 
 ### Related
 
-[kjanat/dotfiles](https://github.com/kjanat/dotfiles) – your actual config repo
+[kjanat/dotfiles](https://github.com/kjanat/dotfiles) – your actual config repo -->
 
 ---
 
