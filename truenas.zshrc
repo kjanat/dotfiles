@@ -1,10 +1,10 @@
 # ██╗   ██╗██╗  ████████╗██╗███╗   ███╗ █████╗ ████████╗███████╗
 # ██║   ██║██║  ╚══██╔══╝██║████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
-# ██║   ██║██║     ██║   ██║██╔████╔██║███████║   ██║   █████╗  
-# ██║   ██║██║     ██║   ██║██║╚██╔╝██║██╔══██║   ██║   ██╔══╝  
+# ██║   ██║██║     ██║   ██║██╔████╔██║███████║   ██║   █████╗
+# ██║   ██║██║     ██║   ██║██║╚██╔╝██║██╔══██║   ██║   ██╔══╝
 # ╚██████╔╝███████╗██║   ██║██║ ╚═╝ ██║██║  ██║   ██║   ███████╗
 #  ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
-# 
+#
 # ████████╗██████╗ ██╗   ██╗███████╗███╗   ██╗ █████╗ ███████╗
 # ╚══██╔══╝██╔══██╗██║   ██║██╔════╝████╗  ██║██╔══██╗██╔════╝
 #    ██║   ██████╔╝██║   ██║█████╗  ██╔██╗ ██║███████║███████╗
@@ -118,20 +118,20 @@ export GREP_OPTIONS='--color=auto'  # Enable color output for grep
 init_terminal() {
     # Reset terminal control settings
     stty sane 2>/dev/null
-    
+
     # Ensure critical keyboard shortcuts work
     stty intr '^C' 2>/dev/null      # Ctrl+C for interrupt
     stty susp '^Z' 2>/dev/null      # Ctrl+Z for suspend
     stty eof '^D' 2>/dev/null       # Ctrl+D for EOF
     stty start '^Q' 2>/dev/null     # Ctrl+Q for XON
     stty stop '^S' 2>/dev/null      # Ctrl+S for XOFF
-    
+
     # Disable bracketed paste mode
     printf '\e[?2004l' 2>/dev/null
-    
+
     # Ensure proper text display
     printf '\e[0m' 2>/dev/null      # Reset text attributes
-    
+
     # Set UTF-8 support (if terminal supports it)
     printf '\e%%G' 2>/dev/null
 }
@@ -146,7 +146,7 @@ init_terminal
 # Your original aliases
 alias h='history 25'
 alias j='jobs -l'
-alias c='clear' 
+alias c='clear'
 alias la='ls -aF'
 alias lf='ls -FA'
 alias ll='ls -lAF'
@@ -533,25 +533,25 @@ _setup_ssh_completion() {
         while IFS= read -r line; do
             # Skip empty lines and comments
             [[ -z "$line" || "$line" == "#"* ]] && continue
-            
+
             # Extract hostname (first field, before space)
             local host_field="${line%% *}"
-            
+
             # Handle comma-separated hosts and ports
             if [[ "$host_field" == *","* ]]; then
                 # Split on comma and take first entry
                 host_field="${host_field%%,*}"
             fi
-            
+
             # Remove port numbers [host]:port format
             if [[ "$host_field" == "["*"]:"* ]]; then
                 host_field="${host_field#[}"
                 host_field="${host_field%]:*}"
             fi
-            
+
             # Remove standard port suffix :22
             host_field="${host_field%:22}"
-            
+
             # Skip if contains wildcards or special characters
             if [[ "$host_field" != *"*"* ]] && [[ "$host_field" != *"?"* ]] && [[ -n "$host_field" ]]; then
                 h+=("$host_field")
@@ -590,24 +590,24 @@ _setup_ssh_completion() {
                 unique_hosts+=("$host")
             fi
         done
-        
+
         # Sort the hosts (ZSH-specific parameter expansion)
         # shellcheck disable=SC2296
         h=("${(@o)unique_hosts}")
-        
+
         # Set up completion styles
         zstyle ':completion:*:ssh:*' hosts "${h[@]}"
         zstyle ':completion:*:slogin:*' hosts "${h[@]}"
         zstyle ':completion:*:scp:*' hosts "${h[@]}"
         zstyle ':completion:*:rsync:*' hosts "${h[@]}"
         zstyle ':completion:*:sftp:*' hosts "${h[@]}"
-        
+
         # Optional: Set up additional SSH-related completions
         zstyle ':completion:*:(ssh|scp|rsync|slogin|sftp):*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
         zstyle ':completion:*:(ssh|scp|rsync|slogin|sftp):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
         zstyle ':completion:*:(ssh|scp|rsync|slogin|sftp):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
         zstyle ':completion:*:(ssh|scp|rsync|slogin|sftp):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
-        
+
         echo "✅ SSH completion loaded ${#h[@]} hosts"
     fi
 }
@@ -662,14 +662,14 @@ _setup_ssh_completion_portable() {
         local sorted_hosts
         # shellcheck disable=SC2207
         sorted_hosts=($(printf '%s\n' "${h[@]}" | sort -u))
-        
+
         # Set up completion
         zstyle ':completion:*:ssh:*' hosts "${sorted_hosts[@]}"
         zstyle ':completion:*:slogin:*' hosts "${sorted_hosts[@]}"
         zstyle ':completion:*:scp:*' hosts "${sorted_hosts[@]}"
         zstyle ':completion:*:rsync:*' hosts "${sorted_hosts[@]}"
         zstyle ':completion:*:sftp:*' hosts "${sorted_hosts[@]}"
-        
+
         echo "✅ SSH completion loaded ${#sorted_hosts[@]} hosts (portable mode)"
     fi
 }
@@ -971,7 +971,7 @@ mkarchive() {
     local exit_code=$?
     if [[ $exit_code -eq 0 ]]; then
         echo "✅ Archive created successfully: $archive_name"
-        
+
         # Show archive info if possible
         if [[ -f "$archive_name" ]]; then
             local size
@@ -979,7 +979,7 @@ mkarchive() {
                 size=$(du -h "$archive_name" | cut -f1)
                 echo "📦 Archive size: $size"
             fi
-            
+
             # Show file count for supported formats
             case "$archive_name" in
                 *.tar*|*.tgz|*.tbz2|*.txz|*.tzst)
@@ -1139,7 +1139,7 @@ ff() {
 
 # Find files by content
 ftext() {
-    grep -r --include="$2" "$1" . 
+    grep -r --include="$2" "$1" .
 }
 
 # Find and replace in files
@@ -1165,7 +1165,7 @@ nettest() {
     else
         echo "❌ Internet: Failed"
     fi
-    
+
     local gateway
 
     gateway=$(route -n get default 2>/dev/null | awk '/gateway:/ {print $2}' || netstat -rn | awk '/^default/ {print $2}' | head -1)
@@ -1177,7 +1177,7 @@ nettest() {
             echo "❌ Gateway ($gateway): Failed"
         fi
     fi
-    
+
     echo "📡 DNS Test:"
     nslookup google.com >/dev/null 2>&1 && echo "✅ DNS: OK" || echo "❌ DNS: Failed"
 }
@@ -1260,7 +1260,7 @@ servstat() {
     local show_details=false
     local sort_output=false
     local output_format="table"
-    
+
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -1320,7 +1320,7 @@ servstat() {
                 ;;
         esac
     done
-    
+
     # Main service overview
     _servstat_overview "$filter" "$show_disabled" "$show_details" "$sort_output" "$output_format"
 }
@@ -1329,34 +1329,33 @@ servstat() {
 _servstat_single_service() {
     local service_name="$1"
     local show_details="$2"
-    
+
     if [[ -z "$service_name" ]]; then
         echo "❌ No service name provided"
         return 1
     fi
-    
+
     # Check if service exists
     if ! service -l 2>/dev/null | grep -q "^${service_name}$"; then
         echo "❌ Service '$service_name' not found"
         echo "💡 Available services: $(service -l 2>/dev/null | tr '\n' ' ')"
         return 1
     fi
-    
+
     echo "🔍 Service: $service_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     # Get service status
-    local status_output
-    local status_code
-    
+    local status_output status_code
+
     status_output=$(service "$service_name" onestatus 2>/dev/null)
     status_code=$?
-    
+
     # Determine status
     local status_icon="❓"
     local status_text="Unknown"
     local status_color=""
-    
+
     if [[ $status_code -eq 0 ]]; then
         if echo "$status_output" | grep -q "is running"; then
             status_icon="✅"
@@ -1372,19 +1371,19 @@ _servstat_single_service() {
         status_text="Error"
         status_color="\033[33m"  # Yellow
     fi
-    
+
     echo -e "${status_color}Status: ${status_icon} ${status_text}\033[0m"
-    
+
     if [[ "$show_details" == true ]]; then
         echo ""
         echo "📋 Detailed Information:"
-        
+
         # Service description
         local desc
 
         desc=$(service "$service_name" describe 2>/dev/null || echo "No description available")
         echo "Description: $desc"
-        
+
         # RC script location
         local rc_script="/etc/rc.d/$service_name"
         if [[ -f "$rc_script" ]] || [[ -f "/usr/local/etc/rc.d/$service_name" ]]; then
@@ -1392,14 +1391,14 @@ _servstat_single_service() {
             echo "RC Script: $rc_script"
             echo "Permissions: $(ls -la "$rc_script" | awk '{print $1, $3, $4}')"
         fi
-        
+
         # Check if enabled at boot
         local enabled_status="❌ Disabled"
         if sysrc -n "${service_name}_enable" 2>/dev/null | grep -q "YES"; then
             enabled_status="✅ Enabled"
         fi
         echo "Boot Enable: $enabled_status"
-        
+
         # Process information if running
         if [[ "$status_text" == "Running" ]]; then
             echo ""
@@ -1413,7 +1412,7 @@ _servstat_single_service() {
                 echo "No processes found (service may use different process names)"
             fi
         fi
-        
+
         # Configuration files
         echo ""
         echo "📁 Configuration:"
@@ -1424,7 +1423,7 @@ _servstat_single_service() {
                 [[ -f "$dir/${service_name}.conf" ]] && echo "Config: $dir/${service_name}.conf"
             fi
         done
-        
+
         # Log files
         echo ""
         echo "📝 Recent Logs:"
@@ -1439,7 +1438,7 @@ _servstat_single_service() {
             fi
         done
     fi
-    
+
     echo ""
     echo "🔧 Quick Actions:"
     echo "  service $service_name start     # Start service"
@@ -1457,21 +1456,21 @@ _servstat_overview() {
     local show_details="$3"
     local sort_output="$4"
     local output_format="$5"
-    
+
     if ! command -v service >/dev/null 2>&1; then
         echo "❌ Service management not available on this system"
         return 1
     fi
-    
+
     echo "🖥️ TrueNAS Service Status Overview"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     # Collect service information
     local services=()
     local running_count=0
     local stopped_count=0
     local error_count=0
-    
+
     # Get list of services
     local service_list
     if [[ "$show_disabled" == true ]]; then
@@ -1479,26 +1478,26 @@ _servstat_overview() {
     else
         service_list=$(service -e 2>/dev/null)
     fi
-    
+
     if [[ -z "$service_list" ]]; then
         echo "❌ No services found"
         return 1
     fi
-    
+
     # Process each service
     while IFS= read -r svc; do
         [[ -z "$svc" ]] && continue
 
         local status_output
         local status_code
-        
+
         status_output=$(service "$svc" onestatus 2>/dev/null)
         status_code=$?
 
         local status_icon="❓"
         local status_text="Unknown"
         local boot_enabled="❌"
-        
+
         # Determine status
         if [[ $status_code -eq 0 ]]; then
             if echo "$status_output" | grep -q "is running"; then
@@ -1515,12 +1514,12 @@ _servstat_overview() {
             status_text="Error"
             ((error_count++))
         fi
-        
+
         # Check boot status
         if sysrc -n "${svc}_enable" 2>/dev/null | grep -q "YES"; then
             boot_enabled="✅"
         fi
-        
+
         # Apply filters
         if [[ -n "$filter" ]]; then
             case "$filter" in
@@ -1532,16 +1531,16 @@ _servstat_overview() {
                     ;;
             esac
         fi
-        
+
         # Store service info
         if [[ "$output_format" == "json" ]]; then
             services+=("{\"name\":\"$svc\",\"status\":\"$status_text\",\"boot_enabled\":\"$boot_enabled\",\"icon\":\"$status_icon\"}")
         else
             services+=("$svc|$status_icon|$status_text|$boot_enabled")
         fi
-        
+
     done <<< "$service_list"
-    
+
     # Output results
     if [[ "$output_format" == "json" ]]; then
         echo "{"
@@ -1561,11 +1560,11 @@ _servstat_overview() {
         echo ""
         echo "📊 Summary: 🟢 $running_count running | 🔴 $stopped_count stopped | ⚠️ $error_count errors"
         echo ""
-        
+
         # Table header
         printf "%-20s %-8s %-10s %-12s\n" "SERVICE" "STATUS" "STATE" "BOOT ENABLE"
         printf "%-20s %-8s %-10s %-12s\n" "-------" "------" "-----" "-----------"
-        
+
         # Sort if requested
         if [[ "$sort_output" == true ]]; then
             printf '%s\n' "${services[@]}" | sort | while IFS='|' read -r name icon state boot; do
@@ -1577,7 +1576,7 @@ _servstat_overview() {
                 printf "%-20s %-8s %-10s %-12s\n" "$name" "$icon" "$state" "$boot"
             done
         fi
-        
+
         echo ""
         echo "💡 Tips:"
         echo "  • Use 'servstat <service>' for detailed info"
@@ -1628,6 +1627,7 @@ netinfo() {
     netstat -rn
 
     echo "=== DNS Servers ==="
+    # shellcheck disable=SC2002
     cat /etc/resolv.conf | grep nameserver
 
     echo "=== Open Connections ==="
@@ -1658,7 +1658,7 @@ seccheck() {
 perfmon() {
     echo "⚡ Performance Monitor:"
     echo "=== CPU Usage ==="
-    top -nt1 | grep "Cpu(s)" || iostat -c 1 1 | tail -1
+    top -bn | grep "CPU:" || iostat -c 1 1 | tail -1
 
     echo "=== Memory Usage ==="
     echo "Total: $(sysctl -n hw.physmem | awk '{printf "%.1f GB", $1/1024/1024/1024}')"
@@ -1690,7 +1690,7 @@ zfsmaint() {
 
     echo "=== Space Usage ==="
     zfs list | head -20
-    
+
     echo -e "\n🔧 Maintenance Commands:"
     echo "  zpool scrub [pool]     - Start scrub"
     echo "  zfs snapshot [dataset]@$(date +%Y%m%d) - Create snapshot"
@@ -1705,12 +1705,14 @@ jailmgr() {
     jls -v 2>/dev/null || echo "No jails running"
 
     echo "=== iocage Jails ==="
-    iocage list 2>/dev/null || echo "iocage not available"
+    iocage list --header \
+    | sort -rk3 -k2 \
+    | column -t 2>/dev/null || echo "iocage not available"
 
     echo "=== Resource Usage ==="
     for jail in $(jls -h jid 2>/dev/null); do
         [[ $jail == "jid" ]] && continue
-        echo "Jail $jail: $(ps -J $jail | wc -l) processes"
+        echo "Jail $jail: $(ps -J "$jail" | wc -l) processes"
     done 2>/dev/null
 }
 
@@ -1869,7 +1871,7 @@ hash -d boot=/boot
 # Load syntax highlighting (if available)
 if [[ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
     source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-    
+
     # Custom highlighting styles
     ZSH_HIGHLIGHT_STYLES[default]=none
     ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,bold
@@ -1945,15 +1947,15 @@ autoload -U +X bashcompinit && bashcompinit
 # Custom completion functions
 _zfs_completion() {
     local -a datasets
-    datasets=($(zfs list -H -o name 2>/dev/null))
-    compadd $datasets
+    mapfile -t datasets < <(zfs list -H -o name 2>/dev/null)
+    compadd "${datasets[@]}"
 }
 compdef _zfs_completion zfs
 
 _zpool_completion() {
     local -a pools
-    pools=($(zpool list -H -o name 2>/dev/null))
-    compadd $pools
+    mapfile -t pools < <(zpool list -H -o name 2>/dev/null)
+    compadd "${pools[@]}"
 }
 compdef _zpool_completion zpool
 
@@ -1964,7 +1966,7 @@ compdef _zpool_completion zpool
 # Startup banner and system check (only for interactive shells)
 if [[ $- == *i* ]] && [[ -z $ZSH_BANNER_SHOWN ]]; then
     export ZSH_BANNER_SHOWN=1
-    
+
     # Cool banner
     echo "
 ╔══════════════════════════════════════════════════════════════════════════╗
@@ -1976,10 +1978,10 @@ if [[ $- == *i* ]] && [[ -z $ZSH_BANNER_SHOWN ]]; then
 ║  📁 Files: ff [name] | ftext [content] | extract [file] | backup [file]  ║
 ║  🎯 Utils: weather | calc | genpass | cleanup | temps                    ║
 ╚══════════════════════════════════════════════════════════════════════════╝"
-    
+
     # Quick system status
     echo "📍 $(hostname) | 💾 $(sysctl -n hw.physmem | awk '{printf "%.1f GB", $1/1024/1024/1024}') | ⏰ $(uptime | awk -F, '{sub(".*up ",x,$1);print $1}' | sed 's/^ *//')"
-    
+
     # ZFS quick status
     if zpool list >/dev/null 2>&1; then
         zfs_status=$(zpool status 2>/dev/null | grep -c "errors\|DEGRADED\|OFFLINE" || echo "0")
@@ -1989,12 +1991,12 @@ if [[ $- == *i* ]] && [[ -z $ZSH_BANNER_SHOWN ]]; then
             echo "⚠️ ZFS: Check pool status with 'zhealth'"
         fi
     fi
-    
+
     # Check for updates (non-blocking) - only if not TrueNAS Core
     if ! command -v freenas-update >/dev/null 2>&1; then
         (pkg version -v 2>/dev/null | grep -q '<' 2>/dev/null && echo "📦 Updates available: run 'sysupdate'") &
     fi
-    
+
     export MAIL=/var/mail/$USER
 fi
 
@@ -2024,13 +2026,13 @@ _ensure_plugin_dir() {
     if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
         # Try to create the directory
         mkdir -p "$ZSH_PLUGIN_DIR" 2>/dev/null
-        
+
         # Check if creation was successful
         if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
             # If creation failed, fall back to a temporary directory
             ZSH_PLUGIN_DIR="/tmp/zsh-${USER}-plugins"
             mkdir -p "$ZSH_PLUGIN_DIR" 2>/dev/null
-            
+
             # If even this fails, use /tmp directly as a last resort
             if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
                 ZSH_PLUGIN_DIR="/tmp"
@@ -2039,7 +2041,7 @@ _ensure_plugin_dir() {
             echo "📁 Created plugin directory: $ZSH_PLUGIN_DIR"
         fi
     fi
-    
+
     # Verify we have write permissions in the directory
     if [[ ! -w "$ZSH_PLUGIN_DIR" ]]; then
         echo "⚠️ Warning: No write permission in plugin directory: $ZSH_PLUGIN_DIR"
@@ -2052,28 +2054,28 @@ _ensure_plugin_dir() {
 # Plugin loader function with enhanced error handling
 load_plugin() {
     local plugin_name="$1"
-    
+
     if [[ -z "$plugin_name" ]]; then
         echo "❌ Error: No plugin name provided"
         echo "Usage: load_plugin <plugin_name>"
         return 1
     fi
-    
+
     local plugin_file="$ZSH_PLUGIN_DIR/$plugin_name/$plugin_name.plugin.zsh"
-    
+
     # Check if plugin directory exists
     if [[ ! -d "$ZSH_PLUGIN_DIR/$plugin_name" ]]; then
         echo "❌ Plugin directory not found: $ZSH_PLUGIN_DIR/$plugin_name"
         return 1
     fi
-    
+
     # Check if main plugin file exists
     if [[ -f "$plugin_file" ]]; then
         # shellcheck source=/dev/null
         # Disable SC1090 as plugin files are dynamically loaded
         if source "$plugin_file" 2>/dev/null; then
             echo "✅ Loaded plugin: $plugin_name"
-            
+
             # Track loaded plugins
             if [[ ${#ZSH_LOADED_PLUGINS[@]} -eq 0 ]]; then
                 ZSH_LOADED_PLUGINS=("$plugin_name")
@@ -2092,7 +2094,7 @@ load_plugin() {
             "$ZSH_PLUGIN_DIR/$plugin_name/init.zsh"
             "$ZSH_PLUGIN_DIR/$plugin_name/$plugin_name.sh"
         )
-        
+
         local loaded=false
         for alt_file in "${alt_files[@]}"; do
             if [[ -f "$alt_file" ]]; then
@@ -2105,7 +2107,7 @@ load_plugin() {
                 fi
             fi
         done
-        
+
         if [[ "$loaded" == false ]]; then
             echo "❌ Plugin file not found: $plugin_name"
             echo "   Searched for:"
@@ -2121,20 +2123,20 @@ load_plugin() {
 # Unload plugin function
 unload_plugin() {
     local plugin_name="$1"
-    
+
     if [[ -z "$plugin_name" ]]; then
         echo "❌ Error: No plugin name provided"
         echo "Usage: unload_plugin <plugin_name>"
         return 1
     fi
-    
+
     # Check if plugin provides unload function
     local unload_func="${plugin_name}_unload"
     if declare -f "$unload_func" >/dev/null 2>&1; then
         echo "🗑️ Running unload function for $plugin_name"
         "$unload_func"
     fi
-    
+
     # Remove from loaded plugins list
     if [[ ${#ZSH_LOADED_PLUGINS[@]} -gt 0 ]]; then
         local -a new_plugins
@@ -2145,31 +2147,31 @@ unload_plugin() {
         done
         ZSH_LOADED_PLUGINS=("${new_plugins[@]}")
     fi
-    
+
     echo "✅ Unloaded plugin: $plugin_name"
 }
 
 # List available plugins
 list_plugins() {
     _ensure_plugin_dir
-    
+
     echo "📦 ZSH Plugin Status"
     echo "Plugin Directory: $ZSH_PLUGIN_DIR"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
         echo "❌ Plugin directory does not exist"
         return 1
     fi
-    
+
     local found_plugins=false
-    
+
     for plugin_dir in "$ZSH_PLUGIN_DIR"/*; do
         if [[ -d "$plugin_dir" ]]; then
             found_plugins=true
             local plugin_name
             plugin_name=$(basename "$plugin_dir")
-            
+
             # Check if plugin is loaded
             local status="❌ Not loaded"
             if [[ ${#ZSH_LOADED_PLUGINS[@]} -gt 0 ]]; then
@@ -2180,7 +2182,7 @@ list_plugins() {
                     fi
                 done
             fi
-            
+
             # Check for plugin files
             local main_file="$plugin_dir/$plugin_name.plugin.zsh"
             local file_status="❌ No plugin file"
@@ -2200,11 +2202,11 @@ list_plugins() {
                     fi
                 done
             fi
-            
+
             printf "%-20s %-15s %s\n" "$plugin_name" "$status" "$file_status"
         fi
     done
-    
+
     if [[ "$found_plugins" == false ]]; then
         echo "No plugins found in $ZSH_PLUGIN_DIR"
         echo ""
@@ -2213,7 +2215,7 @@ list_plugins() {
         echo "   # Add plugin files to the directory"
         echo "   load_plugin plugin-name"
     fi
-    
+
     echo ""
     echo "📋 Loaded plugins: ${#ZSH_LOADED_PLUGINS[@]}"
     if [[ ${#ZSH_LOADED_PLUGINS[@]} -gt 0 ]]; then
@@ -2226,13 +2228,13 @@ list_plugins() {
 # Reload plugin function
 reload_plugin() {
     local plugin_name="$1"
-    
+
     if [[ -z "$plugin_name" ]]; then
         echo "❌ Error: No plugin name provided"
         echo "Usage: reload_plugin <plugin_name>"
         return 1
     fi
-    
+
     echo "🔄 Reloading plugin: $plugin_name"
     unload_plugin "$plugin_name" 2>/dev/null
     load_plugin "$plugin_name"
@@ -2242,33 +2244,33 @@ reload_plugin() {
 install_plugin() {
     local plugin_url="$1"
     local plugin_name="$2"
-    
+
     if [[ -z "$plugin_url" ]]; then
         echo "❌ Error: No plugin URL provided"
         echo "Usage: install_plugin <git_url> [plugin_name]"
         echo "Example: install_plugin https://github.com/user/plugin.git my-plugin"
         return 1
     fi
-    
+
     _ensure_plugin_dir
-    
+
     # Extract plugin name from URL if not provided
     if [[ -z "$plugin_name" ]]; then
         plugin_name=$(basename "$plugin_url" .git)
     fi
-    
+
     local plugin_dir="$ZSH_PLUGIN_DIR/$plugin_name"
-    
+
     if [[ -d "$plugin_dir" ]]; then
         echo "❌ Plugin already exists: $plugin_name"
         echo "Use 'update_plugin $plugin_name' to update or remove it first"
         return 1
     fi
-    
+
     if command -v git >/dev/null 2>&1; then
         echo "📥 Installing plugin: $plugin_name"
         echo "From: $plugin_url"
-        
+
         if git clone "$plugin_url" "$plugin_dir" --depth=1 --quiet; then
             echo "✅ Plugin installed: $plugin_name"
             echo "Load with: load_plugin $plugin_name"
@@ -2287,20 +2289,20 @@ install_plugin() {
 # Update plugin function
 update_plugin() {
     local plugin_name="$1"
-    
+
     if [[ -z "$plugin_name" ]]; then
         echo "❌ Error: No plugin name provided"
         echo "Usage: update_plugin <plugin_name>"
         return 1
     fi
-    
+
     local plugin_dir="$ZSH_PLUGIN_DIR/$plugin_name"
-    
+
     if [[ ! -d "$plugin_dir" ]]; then
         echo "❌ Plugin not found: $plugin_name"
         return 1
     fi
-    
+
     if [[ -d "$plugin_dir/.git" ]]; then
         echo "🔄 Updating plugin: $plugin_name"
         if (cd "$plugin_dir" && git pull --quiet); then
@@ -2320,21 +2322,21 @@ update_plugin() {
 # Auto-load plugins from directory (wrapped in function to allow 'local')
 _autoload_plugins() {
     _ensure_plugin_dir
-    
+
     # Check if plugin directory exists
     if [[ ! -d "$ZSH_PLUGIN_DIR" ]]; then
         return 0
     fi
-    
+
     # Check if plugin directory contains any items before iterating
     if ! compgen -G "$ZSH_PLUGIN_DIR/*" > /dev/null 2>&1; then
         # No plugins found, silently exit
         return 0
     fi
-    
+
     local loaded_count=0
     local plugin_exists=false
-    
+
     # Check if any plugin directories exist
     for item in "$ZSH_PLUGIN_DIR"/*; do
         if [[ -d "$item" ]]; then
@@ -2342,18 +2344,18 @@ _autoload_plugins() {
             break
         fi
     done
-    
+
     # If no plugin directories exist, return silently
     if [[ "$plugin_exists" == false ]]; then
         return 0
     fi
-    
+
     # Now we know we have at least one plugin directory, proceed with loading
     for plugin_dir in "$ZSH_PLUGIN_DIR"/*; do
         if [[ -d "$plugin_dir" ]]; then
             local plugin_name
             plugin_name=$(basename "$plugin_dir")
-            
+
             # Skip if already loaded
             local already_loaded=false
             if [[ ${#ZSH_LOADED_PLUGINS[@]} -gt 0 ]]; then
@@ -2364,7 +2366,7 @@ _autoload_plugins() {
                     fi
                 done
             fi
-            
+
             if [[ "$already_loaded" == false ]]; then
                 if load_plugin "$plugin_name" >/dev/null 2>&1; then
                     ((loaded_count++))
@@ -2372,7 +2374,7 @@ _autoload_plugins() {
             fi
         fi
     done
-    
+
     if [[ $loaded_count -gt 0 ]]; then
         echo "🔌 Auto-loaded $loaded_count plugin(s)"
     fi
@@ -2501,7 +2503,7 @@ help() {
   ~pools          - /mnt
   ~logs           - /var/log
   ~etc            - /etc
-  
+
 ✨ Press TAB for auto-completion on everything!
 🎨 Commands are color-coded as you type!
 🔍 Use Ctrl+R for history search!"
