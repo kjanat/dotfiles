@@ -42,21 +42,42 @@ __pycache__/
 *.dll
 *.exe
 
-# Environment files (should not be committed)
+# Environment files (project-specific, should not be committed)
 .env
 .env.local
 .env.*.local
 
-# Actual dotfiles belong in the separate dotfiles repository
-# Do not commit actual config files here
-.zshrc
-.bashrc
-.vimrc
-.gitconfig
-.tmux.conf
-truenas.zshrc
-zsh-modular/
-ZSH-README.md
+# Local customizations (user-specific overrides)
+*.local
+.vimrc.local
+.bashrc.local
+.zshrc.local
+.gitconfig.local
+
+# Cache and temporary directories
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+.coverage
+.tox/
+
+# IDE and editor workspace files
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
 
 # Trunk (code quality tool) artifacts
 .trunk/
+
+# SSH keys and sensitive files (never commit these!)
+.ssh/id_*
+.ssh/*.pem
+.ssh/known_hosts
+.ssh/authorized_keys
+
+# Personal tokens and credentials
+.npmrc.local
+.pypirc.local
+.netrc
+.gitcredentials

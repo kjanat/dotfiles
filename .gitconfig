@@ -1,0 +1,213 @@
+# ~/.gitconfig - Comprehensive Git Configuration
+# Author: kjanat
+# Last updated: May 2025
+
+[user]
+    name = Your Name
+    email = your.email@example.com
+    # Uncomment and set if you have a signing key
+    # signingkey = YOUR_GPG_KEY_ID
+
+[core]
+    editor = vim
+    autocrlf = input
+    safecrlf = true
+    excludesfile = ~/.gitignore_global
+    attributesfile = ~/.gitattributes_global
+    pager = less -FRX
+    precomposeunicode = true
+    quotepath = false
+
+[init]
+    defaultBranch = main
+
+[push]
+    default = simple
+    followTags = true
+    autoSetupRemote = true
+
+[pull]
+    rebase = true
+    ff = only
+
+[fetch]
+    prune = true
+    prunetags = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+    autoStash = true
+
+[diff]
+    tool = vimdiff
+    algorithm = patience
+    colorMoved = default
+    submodule = log
+
+[status]
+    showUntrackedFiles = all
+    submoduleSummary = true
+
+[log]
+    abbrevCommit = true
+    decorate = short
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    interactive = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added = green
+    changed = yellow
+    untracked = cyan
+
+[alias]
+    # Basic shortcuts
+    a = add
+    aa = add --all
+    ap = add --patch
+    b = branch
+    ba = branch -a
+    bd = branch -d
+    bD = branch -D
+    c = commit
+    ca = commit -a
+    cm = commit -m
+    cam = commit -am
+    co = checkout
+    cob = checkout -b
+    d = diff
+    dc = diff --cached
+    f = fetch
+    fa = fetch --all
+    l = log --oneline
+    p = push
+    pf = push --force-with-lease
+    pl = pull
+    r = reset
+    rh = reset --hard
+    rs = reset --soft
+    s = status
+    sb = status -sb
+    st = stash
+    sta = stash apply
+    std = stash drop
+    stl = stash list
+    stp = stash pop
+    sts = stash save
+
+    # Advanced shortcuts
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    visual = !gitk
+    type = cat-file -t
+    dump = cat-file -p
+    
+    # Logging aliases
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
+    lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+    ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+    le = log --oneline --decorate
+
+    # Show files ignored by git
+    ign = ls-files -o -i --exclude-standard
+    
+    # Assume/unassume files (for temporary ignoring)
+    assume = update-index --assume-unchanged
+    unassume = update-index --no-assume-unchanged
+    assumed = "!git ls-files -v | grep ^h | cut -c 3-"
+    
+    # Find branches containing commit
+    fb = "!f() { git branch -a --contains $1; }; f"
+    
+    # Find tags containing commit
+    ft = "!f() { git describe --always --contains $1; }; f"
+    
+    # Find commits by source code
+    fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f"
+    
+    # Find commits by commit message
+    fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
+    
+    # Remove branches that have already been merged with main
+    dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
+    
+    # Switch to previous branch
+    prev = checkout -
+    
+    # Show verbose output about tags, branches or remotes
+    tags = tag -l
+    branches = branch -a
+    remotes = remote -v
+
+[help]
+    autocorrect = 1
+
+[grep]
+    lineNumber = true
+
+[rerere]
+    enabled = true
+
+[credential]
+    helper = cache --timeout=3600
+
+# Platform-specific settings
+[includeIf "gitdir:~/work/"]
+    path = ~/.gitconfig-work
+
+# OS-specific includes
+[includeIf "gitdir/i:c:/"]
+    path = ~/.gitconfig-windows
+[includeIf "gitdir:/Users/"]
+    path = ~/.gitconfig-macos
+[includeIf "gitdir:/home/"]
+    path = ~/.gitconfig-linux
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+# GitHub CLI integration
+[protocol "https"]
+    allow = always
+
+# Security
+[transfer]
+    fsckobjects = true
+[fetch]
+    fsckobjects = true
+[receive]
+    fsckObjects = true
+
+# Performance
+[pack]
+    threads = 0
+[index]
+    preloadindex = true
+[gc]
+    auto = 256
